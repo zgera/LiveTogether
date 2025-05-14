@@ -82,6 +82,6 @@ class TaskRepository {
     }
     
     async deleteTask(idTask:string): Promise<Task> {
-        
+        return await db.task.delete({ where: { idTask } })
     }
 }

@@ -4,7 +4,15 @@ import { db } from "../db/db";
 
 class FamilyUserRepository {
 
-    async userJoinFamily(userId:string, familyId: string): Promise<FamilyUser> {}
+    async userJoinFamily(idUser:string, idFamily: string): Promise<FamilyUser> {
+        return await db.familyUser.create({
+            data: {
+                idUser,
+                idFamily,
+                idRole: 2,
+                auraPoints: 0
+            }})
+    }
 
     async userLeaveFamily(userId: string, familyId:string): Promise<FamilyUser> {}
 

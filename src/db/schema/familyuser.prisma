@@ -2,7 +2,7 @@ model FamilyUser { // Conexion entre User y Family (relacion MaM)
     idFamilyUser String @id @default(cuid())
     idUser String
     idFamily String //valentin va rapidin
-    idRole String
+    idRole  Int
     auraPoints Int
 
     user User @relation(fields: [idUser], references: [idUser])

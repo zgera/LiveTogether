@@ -4,6 +4,6 @@ import { db } from "../db/db";
 
 class RoleRepository {
 
-    async getRole(idRole: string): Promise<string> {}
+    async getRole(idRole: number): Promise<string> {}
 
 }
