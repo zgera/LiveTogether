@@ -1,0 +1,6 @@
+model Role {
+    idRole String @id @default(cuid())
+    name String
+
+    users FamilyUser[] //Conceta con FamilyUsers, donde asigan roles a cada usuario según la familia
+}

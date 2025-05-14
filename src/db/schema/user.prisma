@@ -1,0 +1,14 @@
+model User{
+    idUser String @id @default(cuid())
+    firstName String
+    lastName String
+    email String @unique
+    password String //hashed
+
+    families   FamilyUser[] // Conecta con FamilyUsers
+    tasks   Task[]  @relation("CreatorTasks")
+    assignedTasks Task[]    @relation("AssignedTasks")
+    notes Note[]
+
+    @@map("users")
+} 

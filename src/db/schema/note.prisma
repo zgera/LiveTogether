@@ -1,0 +1,10 @@
+model Note {
+    idNote String @id @default(cuid())
+    familyId String
+    creatorId String
+    name String
+    desc String
+
+    user User @relation(fields: [creatorId], references: [idUser])
+    family Family @relation(fields: [familyId], references: [idFamily])
+}

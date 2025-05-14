@@ -1,0 +1,16 @@
+model Task {
+    idTask String @id @default(cuid())
+    name String
+    description String
+    completed Boolean
+    familyId String
+    creatorId String
+    assignedId String?
+    idDifficulty String
+
+    creator     User     @relation("CreatorTasks", fields: [creatorId], references: [idUser])
+    assignedTo  User?    @relation("AssignedTasks", fields: [assignedId], references: [idUser])
+    difficulty Difficulty @relation(fields: [idDifficulty], references: [idDifficulty])
+
+    family  Family  @relation(fields: [familyId], references: [idFamily])
+}

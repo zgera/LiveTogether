@@ -1,0 +1,8 @@
+model Family {
+    idFamily String @id @default(cuid())
+    name String
+
+    users   FamilyUser[] // Conecta con FamilyUsers
+    tasks   Task[]
+    notes Note[]
+}
