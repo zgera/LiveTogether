@@ -14,11 +14,52 @@ class FamilyUserRepository {
             }})
     }
 
-    async userLeaveFamily(userId: string, familyId:string): Promise<FamilyUser> {}
+    async getFamilyUserId(idUser: string, idFamily: string): Promise<string | null> {
+        const result = await db.familyUser.findFirst({
+            where: {
+                idUser,
+                idFamily
+            },
+            select: {
+                idFamilyUser: true
+            }
+        })
 
-    async getFamiliesByUsers(userId: string): Promise<Family[]> {}
+        return result?.idFamilyUser ?? null;
+    }
 
-    async getFamilyMembers(idFamily: string): Promise<User[]> {}
+    async userLeaveFamily(idUser: string, idFamily:string): Promise<FamilyUser | null> {
+        const idFamilyUser = await this.getFamilyUserId(idUser, idFamily);
+        if (idFamilyUser) {
+            return await db.familyUser.delete({
+                where: { idFamilyUser }
+            })
+        }
+
+        return null;
+    }
+
+    async getFamiliesByUser(idUser: string): Promise<{idFamily: string}[]> {
+        return await db.familyUser.findMany({
+            where: {
+                idUser
+            },
+            select: {
+                idFamily: true
+            }
+        })
+    }
+
+    async getFamilyMembers(idFamily: string): Promise<{idUser: string}[]> {
+        return await db.familyUser.findMany({
+            where: {
+                idFamily
+            },
+            select: {
+                idUser: true
+            }
+        })
+    }
 
     async getFamilyMembersByRole(idFamily: string, idRole:string): Promise<User[]> {}
 
