@@ -2,7 +2,7 @@ import { Task } from "@prisma/client";
 
 import { db } from "../db/db";
 
-class TaskRepository {
+export class TaskRepository {
 
     async createTask(name:string, description:string, familyId:string, creatorId:string, idDifficulty:string): Promise<Task>  {
         return await db.task.create({

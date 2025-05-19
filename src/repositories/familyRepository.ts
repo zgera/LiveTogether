@@ -2,7 +2,7 @@ import { Family } from "@prisma/client";
 
 import { db } from "../db/db";
 
-class FamilyRepository {
+export class FamilyRepository {
 
     async createFamily(name: string): Promise<Family> {
         return await db.family.create({
