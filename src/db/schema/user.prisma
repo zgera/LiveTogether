@@ -2,7 +2,7 @@ model User{
     idUser String @id @default(cuid())
     firstName String
     lastName String
-    email String @unique
+    username String @unique
     password String //hashed
 
     families   FamilyUser[] // Conecta con FamilyUsers

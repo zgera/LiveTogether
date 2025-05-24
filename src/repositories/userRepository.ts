@@ -4,21 +4,21 @@ import { db } from "../db/db";
 
 export class UserRepository {
 
-    async createUser(firstName: string, lastName: string, email: string, password: string): Promise<User> {
+    async createUser(firstName: string, lastName: string, username: string, password: string): Promise<User> {
         const user = await db.user.create({
             data: {
                 firstName,
                 lastName,
-                email,
+                username,
                 password
             }
         });
         return user;
     }
 
-    async findByEmail(email: string): Promise<User | null> {
+    async findByUsername(username: string): Promise<User | null> {
         const user = await db.user.findUnique({
-            where: { email }
+            where: { username }
         });
         return user;
     }

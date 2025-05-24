@@ -7,21 +7,17 @@ import { UserRepository } from "../repositories/userRepository"
 export class userService {
     private repository = new UserRepository  //Manera corta, cuando se compila es como si estuviera en el constructor de la clase
 
-    async createUser(firstName: string, lastName: string, email: string, password: string){
+    async createUser(firstName: string, lastName: string, username: string, password: string): Promise<User>{
 
-        if (!firstName || !lastName || !email || !password){
+        if (!firstName || !lastName || !username || !password){
             throw new Error("Todos los campos son obligatorios")
-        }
-
-        if (!this.isValidEmail(email)){
-            throw new Error("Estructura de mail invalida")
         }
 
         if (password.length < 6){
             throw new Error("La contraseña debe tener minimo 6 caracteres")
         }
 
-        const existing = await this.repository.findByEmail(email)
+        const existing = await this.repository.findByUsername(username)
         if (existing){
             throw new Error("El mail ya esta asignado a un usuario")
         }
@@ -30,15 +26,31 @@ export class userService {
         const hashedPassword = await bcrypt.hash(password, saltRounds)
 
         try {
-            const user = await this.repository.createUser(firstName, lastName, email, hashedPassword)
+            const user = await this.repository.createUser(firstName, lastName, username, hashedPassword)
             return user
         } catch (err: any){
             throw new Error("Ocurrio un error al crear el usuario. Intente mas tarde")
         }
     }
 
-    private isValidEmail(email: string): boolean {
-        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-        return re.test(email)
+    async verifyUser(username: string, password: string): Promise<User>{
+        let user: User | null;
+        try {
+            user = await this.repository.findByUsername(username)
+        } catch (err: any){
+            throw new Error("Ocurrio un error. Intente mas tarde")
+        }
+
+        if (!user){
+            throw new Error("Usuario no encontrado")
+        }
+
+        const isPasswordValid = await bcrypt.compare(password, user.password)
+
+        if (!isPasswordValid){
+            throw new Error("Contraseña incorrecta")
+        }
+
+        return user
     }
 }
