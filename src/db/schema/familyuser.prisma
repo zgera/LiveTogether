@@ -3,7 +3,7 @@ model FamilyUser { // Conexion entre User y Family (relacion MaM)
     idUser String
     idFamily String //valentin va rapidin
     idRole  Int
-    auraPoints Int
+    points Int
 
     user User @relation(fields: [idUser], references: [idUser])
     family Family @relation(fields: [idFamily], references: [idFamily])
