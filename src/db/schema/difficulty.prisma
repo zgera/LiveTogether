@@ -1,7 +1,7 @@
 model Difficulty {
     idDifficulty String @id @default(cuid())
     name String
-    auraPoints Int
+    points Int
 
     tasks Task[]
 }

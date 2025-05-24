@@ -10,7 +10,7 @@ export class FamilyUserRepository {
                 idUser,
                 idFamily,
                 idRole: 2,
-                auraPoints: 0
+                points: 0
             }})
     }
 
@@ -61,9 +61,45 @@ export class FamilyUserRepository {
         })
     }
 
-    async getFamilyMembersByRole(idFamily: string, idRole:string): Promise<User[]> {}
+    async getFamilyMembersByRole(idFamily: string, idRole:number): Promise<{idUser: string}[]> {
+        return await db.familyUser.findMany({
+            where: {
+                idFamily,
+                idRole
+            },
+            select: {
+                idUser: true
+            }
+        })
+    }
 
-    async changeMemberRoleByFamily(idFamily: string, idUser: string, idRole:string): Promise<FamilyUser> {}
+    async changeMemberRoleByFamily(idFamily: string, idUser: string, idRole:number): Promise<FamilyUser | null> {
+        const idFamilyUser = await this.getFamilyUserId(idUser, idFamily);
+        if (idFamilyUser) {
+            return await db.familyUser.update({
+                where: {
+                    idFamilyUser
+                },
+                data: {
+                    idRole: idRole
+                }
+            })
+        }
+        return null;
+    }
 
-    async changeUserPoints(idFamily:string, idUser: string, points: number): Promise<FamilyUser> {}
+    async changeUserPoints(idFamily:string, idUser: string, points: number): Promise<FamilyUser | null> {
+        const idFamilyUser = await this.getFamilyUserId(idUser, idFamily);
+        if (idFamilyUser) {
+            return await db.familyUser.update({
+                where: {
+                    idFamilyUser
+                },
+                data: {
+                    points: points
+                }
+            })
+        }
+        return null;
+    }
 }
