@@ -5,4 +5,5 @@ model Family {
     users   FamilyUser[] // Conecta con FamilyUsers
     tasks   Task[]
     notes Note[]
+    invitationsSent Invitation[]
 }

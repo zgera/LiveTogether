@@ -9,6 +9,8 @@ model User{
     tasks   Task[]  @relation("CreatorTasks")
     assignedTasks Task[]    @relation("AssignedTasks")
     notes Note[]
+    invitationsReceived Invitation[] @relation("UserInvited")
+    invitationsSent Invitation[] @relation("UserInviter")
 
     @@map("users")
 } 

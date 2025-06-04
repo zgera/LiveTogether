@@ -1,0 +1,10 @@
+model Invitation {
+    idInvitation String @id @default(cuid())
+    idFamily String
+    idUserInvited String
+    idUserInviter String
+
+    userInvited User @relation(name: "UserInvited", fields: [idUserInvited], references: [idUser])
+    userInviter User @relation(name: "UserInviter", fields: [idUserInviter], references: [idUser])
+    family Family @relation(fields: [idFamily], references: [idFamily])
+}
