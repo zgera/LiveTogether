@@ -17,6 +17,10 @@ export class TaskRepository {
             }})
     }
 
+    async getTask(idTask: string): Promise<Task>{
+        return await db.task.findUnique({ where: { idTask } })
+    }
+
     async getTasksByFamily(familyId: string): Promise<Task[]> {
         return await db.task.findMany({ where: { familyId } });
     }
@@ -61,7 +65,7 @@ export class TaskRepository {
             }})
     }
 
-    async unassignTaskFromUser(idTask: string, idUser: string): Promise<Task> {
+    async unassignTaskFromUser(idTask: string): Promise<Task> {
         return await db.task.update({
             where: { idTask },
             data: {
