@@ -4,29 +4,31 @@ import bcrypt from "bcrypt";
 
 import { UserRepository } from "../repositories/userRepository"
 
+const MAX_CHARACTERS_FOR_USERNAME = 15
+const MIN_CHARACTERS_FOR_USERNAME = 4
+const MIN_CHARACTERS_FOR_PASSWORD = 6
+const CHARACTERS_NOT_ALLOWED = /[<>'"{}()\/\\]/ // (regex)
+const saltRounds = 10
+
+interface CreateUserBody {
+  firstName: string,
+  lastName: string,
+  username: string,
+  password: string,
+}
+
+// clase UserValidator abajo al fondo
+
 export class userService {
     private repository = new UserRepository  //Manera corta, cuando se compila es como si estuviera en el constructor de la clase
+    private userValidator = new UserValidator
 
-    async createUser(firstName: string, lastName: string, username: string, password: string): Promise<User>{
-
-        if (!firstName || !lastName || !username || !password){
-            throw new Error("Todos los campos son obligatorios")
-        }
-
-        if (password.length < 6){
-            throw new Error("La contraseña debe tener minimo 6 caracteres")
-        }
-
-        const existing = await this.repository.findByUsername(username)
-        if (existing){
-            throw new Error("El mail ya esta asignado a un usuario")
-        }
-
-        const saltRounds = 10
-        const hashedPassword = await bcrypt.hash(password, saltRounds)
+    async createUser(userData: CreateUserBody): Promise<User>{
+        await this.userValidator.validate(userData, this.repository)
+        const hashedPassword = await bcrypt.hash(userData.password, saltRounds)
 
         try {
-            const user = await this.repository.createUser(firstName, lastName, username, hashedPassword)
+            let user = await this.repository.createUser(userData.firstName, userData.lastName, userData.username, hashedPassword)
             return user
         } catch (err: any){
             throw new Error("Ocurrio un error al crear el usuario. Intente mas tarde")
@@ -52,5 +54,39 @@ export class userService {
         }
 
         return user
+    }
+}
+
+
+class UserValidator { 
+    async validate(userData:CreateUserBody, repository: UserRepository): Promise<boolean> {
+        await this.validateUsername(userData.username, repository)
+        this.validatePassword(userData.password)
+        this.validateName(userData.firstName)
+        this.validateName(userData.lastName)
+        return true;
+    }
+
+    private async validateUsername(username: string, repository:UserRepository): Promise<void> {
+        this.validateName(username)
+        let existing = await repository.findByUsername(username)
+        if (existing){
+            throw new Error("Ese nombre ya esta ocupado.")
+        }
+    }
+
+    private validateName(name: string): void {
+        if (name.length > MAX_CHARACTERS_FOR_USERNAME) {
+            throw Error(`Los nombres no pueden tener mas de ${MAX_CHARACTERS_FOR_USERNAME} o menos de ${MIN_CHARACTERS_FOR_USERNAME} caracteres.`)
+        }
+        if (CHARACTERS_NOT_ALLOWED.test(name)) {
+            throw Error(`Los nombres no pueden contener caracteres especiales.`)
+        }
+    }
+
+    private validatePassword(password: string): void {
+        if (password.length < MIN_CHARACTERS_FOR_PASSWORD) {
+            throw Error(`La contraseña no puede tener menos de ${MIN_CHARACTERS_FOR_PASSWORD} caracteres.`)
+        }
     }
 }

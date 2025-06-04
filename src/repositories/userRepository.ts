@@ -23,8 +23,6 @@ export class UserRepository {
         return user;
     }
 
-    async changeEmail(idUser: string, email: string): Promise<User> {}
-
     async changePassword(idUser: string, password: string): Promise<User> {}
 
     async deleteUser(idUser: string): Promise<User> {}
