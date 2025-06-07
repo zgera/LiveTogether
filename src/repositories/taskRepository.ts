@@ -9,15 +9,15 @@ export class TaskRepository {
             data: {
                 name,
                 description,
-                completed: false,
+                completedByUser: false,
+                completedByAdmin: false,
                 familyId,
                 creatorId,
-                //assignedId: null, 
                 idDifficulty
             }})
     }
 
-    async getTask(idTask: string): Promise<Task>{
+    async getTask(idTask: string): Promise<Task | null>{
         return await db.task.findUnique({ where: { idTask } })
     }
 
@@ -26,11 +26,11 @@ export class TaskRepository {
     }
 
     async getTasksIncompletedByFamily(familyId: string): Promise<Task[]>  {
-        return await db.task.findMany({ where: { familyId, completed: false } });
+        return await db.task.findMany({ where: { familyId, completedByAdmin: false } });
     }
 
     async getTasksCompletedByFamily(familyId: string): Promise<Task[]>  {
-        return await db.task.findMany({ where: { familyId, completed: true } });
+        return await db.task.findMany({ where: { familyId, completedByAdmin: true } });
     }
 
     async getTasksAssignedByFamilyUser(familyId: string, userId: string): Promise<Task[]>  {
@@ -41,11 +41,11 @@ export class TaskRepository {
         return await db.task.findMany({ where: { familyId, assignedId: null } });
     }
 
-    async markTaskAsComplete(idTask: string): Promise<Task> {
+    async markTaskAsCompleteByUser(idTask: string): Promise<Task> {
         return await db.task.update({
             where: { idTask },
             data: {
-                completed: true
+                completedByUser: true
             }})
     }
 
@@ -53,7 +53,7 @@ export class TaskRepository {
         return await db.task.update({
             where: { idTask },
             data: {
-                completed: false
+                completedByUser: false
             }})
     }
 

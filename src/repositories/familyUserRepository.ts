@@ -19,7 +19,7 @@ export class FamilyUserRepository {
             }})
     }
 
-    async getFamilyUserRole(idUser: string, idFamily: string): Promise<Number | null> {
+    async getFamilyUserRole(idUser: string, idFamily: string): Promise<number | null> {
         const result = await db.familyUser.findFirst({
             where: {
                 idUser,

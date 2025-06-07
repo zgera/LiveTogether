@@ -1,12 +1,16 @@
 import {Router} from "express"
 
-import jwt from "jsonwebtoken"
-
 import { autenticarToken } from "./middleware/authMiddleware";
 
 import { userService } from "../services/userService"
 
+import { authService } from "../services/authService";
+
+import { TokenData } from "../services/tokenData";
+
 const UserService = new userService();
+
+const AuthService = new authService();
 
 export const userRouter = Router()
 
@@ -16,16 +20,13 @@ userRouter.post("/login", async (req, res) => {
     try {
         const user = await UserService.verifyUser(username, password)
 
-        if (!process.env.JWT_SECRET) {
-            throw new Error("JWT_SECRET is not defined in environment variables");
+        const tokenData: TokenData = {
+            userId: user.idUser,
+            userName: user.username
         }
 
-        const token = jwt.sign(
-            {id: user.idUser, username: user.username},
-            process.env.JWT_SECRET,
-            {
-                expiresIn: "1h"
-            })
+        const token = AuthService.createToken(tokenData)
+
         res
             .cookie('acces_token', token, {
                 httpOnly: true,

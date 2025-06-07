@@ -38,6 +38,10 @@ export class TaskService {
 
         const taskUnassigned = await this.repository.getTask(idTask)
 
+        if (!taskUnassigned){
+            throw new Error ("Tarea inexistente")
+        }
+
         if (!this.isInFamily(token, taskUnassigned.familyId)){
             throw new Error ("El usuario no pertenece a la familia de la tarea")
         }
@@ -57,11 +61,15 @@ export class TaskService {
 
         const taskAssigned = await this.repository.getTask(idTask)
 
-        if (!this.isInFamily(token, taskAssigned.famililyId)){
+        if (!taskAssigned){
+            throw new Error ("Tarea inexistente")
+        }
+
+        if (!this.isInFamily(token, taskAssigned.familyId)){
             throw new Error ("El usuario no pertenece a la familia de la tarea")
         }
 
-        if (!await isAdmin(token, taskAssigned.famililyId)){
+        if (!await isAdmin(token, taskAssigned.familyId)){
             throw new Error ("El usuario debe ser admin para realizar esta tarea")
         }
 

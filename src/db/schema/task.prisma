@@ -2,7 +2,8 @@ model Task {
     idTask String @id @default(cuid())
     name String
     description String
-    completed Boolean
+    completedByUser Boolean
+    completedByAdmin Boolean
     familyId String
     creatorId String
     assignedId String?

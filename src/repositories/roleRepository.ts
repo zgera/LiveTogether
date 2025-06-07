@@ -4,7 +4,7 @@ import { db } from "../db/db";
 
 export class RoleRepository {
 
-    async getRole(idRole: Number): Promise<String | null> {
+    async getRole(idRole: number): Promise<String | null> {
         const result = await db.role.findUnique({
             where: {
                 idRole

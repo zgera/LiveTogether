@@ -8,7 +8,7 @@ export async function isAdmin(token: TokenData, familyId: string): Promise <Bool
 
     const idRole = await familyUserRepository.getFamilyUserRole(token.userId, familyId);
     
-    if (idRole == null){
+    if (!idRole){
         throw new Error("El usuario no pertenece a la familia")
     }
 
