@@ -41,7 +41,7 @@ export class TaskRepository {
         return await db.task.findMany({ where: { familyId, assignedId: null } });
     }
 
-    async markTaskAsCompleteByUser(idTask: string): Promise<Task> {
+    async markTaskAsCompletedByUser(idTask: string): Promise<Task> {
         return await db.task.update({
             where: { idTask },
             data: {
@@ -55,6 +55,15 @@ export class TaskRepository {
             data: {
                 completedByUser: false
             }})
+    }
+
+    async markTaskAsCompletedByAdmin(idTask: string): Promise<Task> {
+        return await db.task.update({
+            where: {idTask},
+            data: {
+                completedByAdmin: true
+            }
+        })
     }
 
     async assignTaskToUser(idTask: string, idUser: string): Promise<Task> {

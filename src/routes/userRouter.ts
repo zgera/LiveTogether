@@ -10,8 +10,6 @@ import { TokenData } from "../services/tokenData";
 
 const UserService = new userService();
 
-const AuthService = new authService();
-
 export const userRouter = Router()
 
 userRouter.post("/login", async (req, res) => {
@@ -25,7 +23,7 @@ userRouter.post("/login", async (req, res) => {
             userName: user.username
         }
 
-        const token = AuthService.createToken(tokenData)
+        const token = authService.createToken(tokenData)
 
         res
             .cookie('acces_token', token, {

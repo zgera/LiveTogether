@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express"
-import jwt from "jsonwebtoken"
+import { authService } from "../../services/authService";
 
 // Extiende la interfaz Request para incluir 'usuario'
 declare global {
@@ -19,7 +19,7 @@ export function autenticarToken(req: Request, res: Response, next: NextFunction)
     }
 
     try {
-        const decoded = jwt.verify(token, "secret")
+        const decoded = authService.validateToken(token)
         req.user = decoded
         next()
     } catch (error) {
