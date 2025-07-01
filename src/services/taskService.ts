@@ -1,25 +1,21 @@
 import { Task } from "@prisma/client";
 import { TaskRepository } from "../repositories/taskRepository";
 import { TokenData } from "./tokenData";
-import { FamilyUserRepository } from "../repositories/familyUserRepository";
-import { isAdmin } from "./isAdmin";
+import { AuthorizationService } from "./authorizationService";
+
+
 export class TaskService {
     
+    private authorizationService = new AuthorizationService();
     private repository = new TaskRepository();
-    private familyUserRepository = new FamilyUserRepository();
 
-    private async isInFamily(token: TokenData, familyId: string): Promise<boolean> {
-        const members = await this.familyUserRepository.getFamilyMembers(familyId)
-        const userInFamily = members.some(member => member.idUser === token.userId);
-        return userInFamily;
-    }
 
     async createTask(name: string, description: string, familyId: string, idDifficulty: string, token: TokenData): Promise<Task> {
         if (!name || !description || !familyId || !idDifficulty || !token) {
             throw new Error("Todos los campos son obligatorios");
         }
 
-        if (!await this.isInFamily(token, familyId)){
+        if (!await this.authorizationService.isInFamily(token, familyId)){
             throw new Error ("El usuario no pertenece a la familia")
         }
 
@@ -31,7 +27,7 @@ export class TaskService {
         }
     }
 
-    async autoAssignedTask(idTask: string, token: TokenData): Promise<Task> {
+    async autoAssignTask(idTask: string, token: TokenData): Promise<Task> {
         if (!idTask || !token){
             throw new Error("Todos los campos son obligatorios")
         }
@@ -42,7 +38,11 @@ export class TaskService {
             throw new Error ("Tarea inexistente")
         }
 
-        if (!this.isInFamily(token, taskUnassigned.familyId)){
+        if (taskUnassigned.assignedId !== null) {
+            throw new Error("La tarea ya está asignada a otro usuario");
+        }
+
+        if (!this.authorizationService.isInFamily(token, taskUnassigned.familyId)){
             throw new Error ("El usuario no pertenece a la familia de la tarea")
         }
 
@@ -54,7 +54,7 @@ export class TaskService {
         }
     }
 
-    async UnassignedTask(idTask: string, token: TokenData): Promise<Task> {
+    async unassignTask(idTask: string, token: TokenData): Promise<Task> {
         if (!idTask || !token){
             throw new Error("Todos los campos son obligatorios")
         }
@@ -65,11 +65,11 @@ export class TaskService {
             throw new Error ("Tarea inexistente")
         }
 
-        if (!this.isInFamily(token, taskAssigned.familyId)){
-            throw new Error ("El usuario no pertenece a la familia de la tarea")
+        if (taskAssigned.assignedId === null) {
+            throw new Error("La tarea no está asignada a ningún usuario");
         }
 
-        if (!await isAdmin(token, taskAssigned.familyId)){
+        if (!await this.authorizationService.isAdmin(token, taskAssigned.familyId)){
             throw new Error ("El usuario debe ser admin para realizar esta tarea")
         }
 
@@ -80,4 +80,90 @@ export class TaskService {
             throw new Error("Ocurrio un error al realizar la operacion. Intente mas tarde")
         }
     }
+
+    async completeTaskAsUser(idTask: string, token: TokenData): Promise<Task> {
+        if (!idTask || !token) {
+            throw new Error("Todos los campos son obligatorios");
+        }
+
+        const taskAssigned = await this.repository.getTask(idTask);
+
+        if (!taskAssigned) {
+            throw new Error("Tarea inexistente");
+        }
+
+        if (!await this.authorizationService.isInFamily(token, taskAssigned.familyId)) {
+            throw new Error("El usuario no pertenece a la familia de la tarea");
+        }
+
+        if (taskAssigned.assignedId !== token.userId) {
+            throw new Error("El usuario no es el encargado de la tarea");
+        }
+
+        if (taskAssigned.completedByUser) {
+            throw new Error("La tarea ya ha sido completada por el usuario");
+        }
+
+        try {
+            const taskCompleted = await this.repository.markTaskAsCompletedByUser(idTask);
+            return taskCompleted;
+        } catch (err: any) {
+            throw new Error("Ocurrió un error al completar la tarea. Intente más tarde");
+        }
+    }
+
+    async completeTaskAsAdmin(idTask: string, token: TokenData): Promise<Task> {
+        if (!idTask || !token) {
+            throw new Error("Todos los campos son obligatorios");
+        }
+
+        const taskAssigned = await this.repository.getTask(idTask);
+
+        if (!taskAssigned) {
+            throw new Error("Tarea inexistente");
+        }
+
+        if (!await this.authorizationService.isAdmin(token, taskAssigned.familyId)) {
+            throw new Error("El usuario debe ser admin para realizar esta tarea");
+        }
+
+        if (taskAssigned.completedByAdmin) {
+            throw new Error("La tarea ya ha sido completada por el administrador");
+        }
+
+        try {
+            const taskCompleted = await this.repository.markTaskAsCompletedByAdmin(idTask);
+            return taskCompleted;
+        } catch (err: any) {
+            throw new Error("Ocurrió un error al completar la tarea. Intente más tarde");
+        }
+    }
+
+    async assingTaskToUser(idTask: string, idUser: string, token: TokenData): Promise<Task> {
+        if (!idTask || !idUser || !token) {
+            throw new Error("Todos los campos son obligatorios");
+        }
+
+        const taskUnassigned = await this.repository.getTask(idTask);
+
+        if (!taskUnassigned) {
+            throw new Error("Tarea inexistente");
+        }
+
+        if (taskUnassigned.assignedId !== null) {
+            throw new Error("La tarea ya está asignada a otro usuario");
+        }
+
+        if (!await this.authorizationService.isAdmin(token, taskUnassigned.familyId)) {
+            throw new Error("El usuario debe ser admin para realizar esta tarea");
+        }
+
+        try {
+            const taskAssigned = await this.repository.assignTaskToUser(idTask, idUser);
+            return taskAssigned;
+        } catch (err: any) {
+            throw new Error("Ocurrió un error al asignar la tarea. Intente más tarde");
+        }
+    }
+
 }

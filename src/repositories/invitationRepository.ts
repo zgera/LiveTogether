@@ -4,7 +4,26 @@ import { db } from "../db/db";
 
 export class InvitationRepository {
 
-    async getInvitationsSentToUserByUserId(idUser: string): Promise<Invitation[]> { // en el service primero hacer user.findByUsername()
+    async createInvitation(idFamily: string, idUserInvited: string, idUserInviter: string): Promise<Invitation> {
+        let invitation = await db.invitation.create({
+            data: {
+                idFamily: idFamily,
+                idUserInvited: idUserInvited,
+                idUserInviter: idUserInviter,
+            }
+        });
+        return invitation;
+    }
+
+    getInvitation(idInvitation: string): Promise<Invitation | null> {
+        return db.invitation.findUnique({
+            where: {
+                idInvitation: idInvitation
+            }
+        });
+    }
+
+    async getInvitationsSentToUserByUserId(idUser: string): Promise<Invitation[]> { 
         let invitations = await db.invitation.findMany({
             where: {
                 idUserInvited: idUser,
@@ -20,5 +39,17 @@ export class InvitationRepository {
             }
         });
         return invitations;
+    }
+
+    async acceptInvitation(idInvitation: string): Promise<Invitation> {
+        let invitation = await db.invitation.update({
+            where: {
+                idInvitation: idInvitation
+            },
+            data: {
+                accepted: true
+            }
+        });
+        return invitation;
     }
 }

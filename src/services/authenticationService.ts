@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken"
 import { TokenData } from "./tokenData"
 
-export class authService{
+export class authenticationService{
     static createToken(tokenData: TokenData){
         const token = jwt.sign(
             {id: tokenData.userId, username: tokenData.userName},

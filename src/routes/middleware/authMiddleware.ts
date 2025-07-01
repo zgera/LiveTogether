@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express"
-import { authService } from "../../services/authService";
+import { authenticationService } from "../../services/authenticationService";
 
 // Extiende la interfaz Request para incluir 'usuario'
 declare global {
@@ -19,7 +19,7 @@ export function autenticarToken(req: Request, res: Response, next: NextFunction)
     }
 
     try {
-        const decoded = authService.validateToken(token)
+        const decoded = authenticationService.validateToken(token)
         req.user = decoded
         next()
     } catch (error) {

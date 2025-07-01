@@ -1,10 +1,8 @@
 import {Router} from "express"
 
-import { autenticarToken } from "./middleware/authMiddleware";
-
 import { userService } from "../services/userService"
 
-import { authService } from "../services/authService";
+import { authenticationService } from "../services/authenticationService";
 
 import { TokenData } from "../services/tokenData";
 
@@ -23,7 +21,7 @@ userRouter.post("/login", async (req, res) => {
             userName: user.username
         }
 
-        const token = authService.createToken(tokenData)
+        const token = authenticationService.createToken(tokenData)
 
         res
             .cookie('acces_token', token, {
