@@ -4,7 +4,7 @@ import { db } from "../db/db";
 
 export class TaskRepository {
 
-    async createTask(name:string, description:string, familyId:string, creatorId:string, idDifficulty:string): Promise<Task>  {
+    async createTask(name:string, description:string, familyId:string, creatorId:string, idDifficulty:number): Promise<Task>  {
         return await db.task.create({
             data: {
                 name,

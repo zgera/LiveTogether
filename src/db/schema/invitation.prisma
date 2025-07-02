@@ -3,7 +3,7 @@ model Invitation {
     idFamily String
     idUserInvited String
     idUserInviter String
-    accepted Boolean @default(false)
+    accepted Boolean?
 
     userInvited User @relation(name: "UserInvited", fields: [idUserInvited], references: [idUser])
     userInviter User @relation(name: "UserInviter", fields: [idUserInviter], references: [idUser])

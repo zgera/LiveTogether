@@ -1,5 +1,5 @@
 model Difficulty {
-    idDifficulty String @id @default(cuid())
+    idDifficulty Int @id
     name String
     points Int
 

@@ -3,6 +3,12 @@ import { TaskRepository } from "../repositories/taskRepository";
 import { TokenData } from "./tokenData";
 import { AuthorizationService } from "./authorizationService";
 
+enum Difficulty {
+    facil = 1,
+    media = 2,
+    dificil = 3
+}
+
 
 export class TaskService {
     
@@ -10,9 +16,13 @@ export class TaskService {
     private repository = new TaskRepository();
 
 
-    async createTask(name: string, description: string, familyId: string, idDifficulty: string, token: TokenData): Promise<Task> {
-        if (!name || !description || !familyId || !idDifficulty || !token) {
+    async createTask(name: string, description: string, familyId: string, difficulty: string, token: TokenData): Promise<Task> {
+        if (!name || !description || !familyId || !difficulty || !token) {
             throw new Error("Todos los campos son obligatorios");
+        }
+
+        if (difficulty !== "facil" && difficulty !== "media" && difficulty !== "dificil") {
+            throw new Error("Dificultad inválida")
         }
 
         if (!await this.authorizationService.isInFamily(token, familyId)){
@@ -20,7 +30,7 @@ export class TaskService {
         }
 
         try {
-            const task = await this.repository.createTask(name, description, familyId, token.userId, idDifficulty);
+            const task = await this.repository.createTask(name, description, familyId, token.userId, Difficulty[difficulty as keyof typeof Difficulty]);
             return task;
         } catch (err: any) {
             throw new Error("Ocurrió un error al crear la tarea. Intente más tarde");

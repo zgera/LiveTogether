@@ -10,6 +10,7 @@ export class InvitationRepository {
                 idFamily: idFamily,
                 idUserInvited: idUserInvited,
                 idUserInviter: idUserInviter,
+                accepted: null
             }
         });
         return invitation;
@@ -48,6 +49,18 @@ export class InvitationRepository {
             },
             data: {
                 accepted: true
+            }
+        });
+        return invitation;
+    }
+
+    async rejectInvitation(idInvitation: string): Promise<Invitation> {
+        let invitation = await db.invitation.update({
+            where: {
+                idInvitation: idInvitation
+            },
+            data: {
+                accepted: false
             }
         });
         return invitation;
