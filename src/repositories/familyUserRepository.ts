@@ -2,21 +2,18 @@ import { FamilyUser } from "@prisma/client";
 
 import { db } from "../db/db";
 
-enum familyRoles {
-    admin = 1,
-    member = 2,
-}
 
 export class FamilyUserRepository {
 
-    async userJoinFamily(idUser:string, idFamily: string): Promise<FamilyUser> {
+    async userJoinFamily(idUser:string, idFamily: string, idRole: number): Promise<FamilyUser> {
         return await db.familyUser.create({
             data: {
                 idUser,
                 idFamily,
-                idRole: familyRoles.member,
+                idRole,
                 points: 0
-            }})
+            }
+        })
     }
 
     async getFamilyUserRole(idUser: string, idFamily: string): Promise<number | null> {

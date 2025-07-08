@@ -52,7 +52,7 @@ export class TaskService {
             throw new Error("La tarea ya está asignada a otro usuario");
         }
 
-        if (!this.authorizationService.isInFamily(token, taskUnassigned.familyId)){
+        if (!await this.authorizationService.isInFamily(token, taskUnassigned.familyId)){
             throw new Error ("El usuario no pertenece a la familia de la tarea")
         }
 

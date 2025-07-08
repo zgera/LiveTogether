@@ -23,6 +23,13 @@ export class UserRepository {
         return user;
     }
 
+    async getUser(idUser: string): Promise<User | null> {
+        const user = await db.user.findUnique({
+            where: { idUser }
+        });
+        return user;
+    }
+
     async changePassword(idUser: string, password: string): Promise<User> {}
 
     async deleteUser(idUser: string): Promise<User> {}

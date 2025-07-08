@@ -24,4 +24,8 @@ export class FamilyRepository {
     async deleteFamily(idFamily: string): Promise<Family> {
         return await db.family.delete({ where: { idFamily }})
     }
+
+    async getFamily(idFamily: string): Promise<Family | null> {
+        return await db.family.findUnique({ where: { idFamily }});
+    }
 }

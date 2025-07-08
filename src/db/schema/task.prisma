@@ -7,7 +7,7 @@ model Task {
     familyId String
     creatorId String
     assignedId String?
-    idDifficulty String
+    idDifficulty Int
 
     creator     User     @relation("CreatorTasks", fields: [creatorId], references: [idUser])
     assignedTo  User?    @relation("AssignedTasks", fields: [assignedId], references: [idUser])

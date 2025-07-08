@@ -1,4 +1,5 @@
 import { User } from "@prisma/client";
+import { TokenData } from "./tokenData";
 
 import bcrypt from "bcrypt";
 
@@ -35,22 +36,31 @@ export class userService {
         }
     }
 
-    async verifyUser(username: string, password: string): Promise<User>{
-        let user: User | null;
-        try {
-            user = await this.repository.findByUsername(username)
-        } catch (err: any){
-            throw new Error("Ocurrio un error. Intente mas tarde")
+    async verifyUser(token: TokenData, password: string): Promise<User>{
+        if (!token || !password) {
+            throw new Error("Todos los campos son obligatorios")
         }
 
-        if (!user){
-            throw new Error("Usuario no encontrado")
-        }
+        const user = await this.getUser(token.userId)
 
         const isPasswordValid = await bcrypt.compare(password, user.password)
 
         if (!isPasswordValid){
             throw new Error("Contraseña incorrecta")
+        }
+
+        return user
+    }
+
+    async getUser(idUser: string): Promise<User> {
+        if (!idUser) {
+            throw new Error("El id del usuario es obligatorio")
+        }
+
+        const user = await this.repository.getUser(idUser)
+
+        if (!user) {
+            throw new Error("Usuario no encontrado")
         }
 
         return user
