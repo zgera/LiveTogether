@@ -28,6 +28,7 @@ export class InvitationRepository {
         let invitations = await db.invitation.findMany({
             where: {
                 idUserInvited: idUser,
+                accepted: null
             }
         });
         return invitations;

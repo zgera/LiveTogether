@@ -9,10 +9,13 @@ import { TokenData } from "./tokenData";
 
 export class FamilyService {
 
+    // Repositorios
     private repository = new FamilyRepository();
+    private familyUserRepository = new FamilyUserRepository();
+
+    // Servicios
     private authorizationService = new AuthorizationService();
     private userService = new userService();
-    private familyUserRepository = new FamilyUserRepository();
 
     async createFamily(name: string, token: TokenData): Promise<Family> {
         if (!name || !token) {
@@ -21,7 +24,7 @@ export class FamilyService {
 
         try {
             const family = await this.repository.createFamily(name);
-            await this.familyUserRepository.userJoinFamily(token.userId, family.idFamily, 2); // El rol 2 es de admin
+            await this.joinFamily(token.userId, family.idFamily, 2); // El rol 2 es de admin
             return family;
         } catch (err: any) {
             throw new Error("Ocurrió un error al crear la familia. Intente más tarde");
@@ -80,6 +83,18 @@ export class FamilyService {
 
         return members;
     }
+
+    async joinFamily(idUser: string, idFamily: string, idRol: number) {
+        if (!idFamily || !idUser || !idRol) {
+            throw new Error("Todos los campos son obligatorios");
+        }
+        try {
+            const familyUser = await this.familyUserRepository.userJoinFamily(idUser, idFamily, idRol);
+        } catch (err: any) {
+            throw new Error("Ocurrió un error al unirse a la familia. Intente más tarde");
+        }
+    }
+
 
     async deleteFamily(idFamily: string, token: TokenData): Promise<Family | null> {
         if (!idFamily || !token) {

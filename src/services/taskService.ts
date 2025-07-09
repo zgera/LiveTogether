@@ -12,9 +12,11 @@ enum Difficulty {
 
 export class TaskService {
     
-    private authorizationService = new AuthorizationService();
+    // Repositorio
     private repository = new TaskRepository();
 
+    // Servicios
+    private authorizationService = new AuthorizationService();
 
     async createTask(name: string, description: string, familyId: string, difficulty: string, token: TokenData): Promise<Task> {
         if (!name || !description || !familyId || !difficulty || !token) {
@@ -37,16 +39,39 @@ export class TaskService {
         }
     }
 
+    async getTask(idTask: string): Promise<Task> {
+        if (!idTask){
+            throw new Error("El id de la tarea es obligatorio");
+        }
+        const task = await this.repository.getTask(idTask);
+        if (!task) {
+            throw new Error("Tarea inexistente");
+        }
+        return task
+    }
+
+    async getTasksByFamily(familyId: string, token: TokenData): Promise<Task[]> {
+        if (!familyId || !token) {
+            throw new Error("Todos los campos son obligatorios");
+        }
+        if (!await this.authorizationService.isInFamily(token, familyId)) {
+            throw new Error("El usuario no pertenece a la familia");
+        }
+        try {
+            const tasks = await this.repository.getTasksByFamily(familyId);
+            return tasks;
+        } catch (err: any) {
+            throw new Error("Ocurrió un error al obtener las tareas. Intente más tarde");
+        }
+    
+    }
+
     async autoAssignTask(idTask: string, token: TokenData): Promise<Task> {
         if (!idTask || !token){
             throw new Error("Todos los campos son obligatorios")
         }
 
-        const taskUnassigned = await this.repository.getTask(idTask)
-
-        if (!taskUnassigned){
-            throw new Error ("Tarea inexistente")
-        }
+        const taskUnassigned = await this.getTask(idTask);
 
         if (taskUnassigned.assignedId !== null) {
             throw new Error("La tarea ya está asignada a otro usuario");
@@ -69,11 +94,7 @@ export class TaskService {
             throw new Error("Todos los campos son obligatorios")
         }
 
-        const taskAssigned = await this.repository.getTask(idTask)
-
-        if (!taskAssigned){
-            throw new Error ("Tarea inexistente")
-        }
+        const taskAssigned = await this.getTask(idTask)
 
         if (taskAssigned.assignedId === null) {
             throw new Error("La tarea no está asignada a ningún usuario");
@@ -96,11 +117,7 @@ export class TaskService {
             throw new Error("Todos los campos son obligatorios");
         }
 
-        const taskAssigned = await this.repository.getTask(idTask);
-
-        if (!taskAssigned) {
-            throw new Error("Tarea inexistente");
-        }
+        const taskAssigned = await this.getTask(idTask);
 
         if (!await this.authorizationService.isInFamily(token, taskAssigned.familyId)) {
             throw new Error("El usuario no pertenece a la familia de la tarea");
@@ -127,11 +144,7 @@ export class TaskService {
             throw new Error("Todos los campos son obligatorios");
         }
 
-        const taskAssigned = await this.repository.getTask(idTask);
-
-        if (!taskAssigned) {
-            throw new Error("Tarea inexistente");
-        }
+        const taskAssigned = await this.getTask(idTask);
 
         if (!await this.authorizationService.isAdmin(token, taskAssigned.familyId)) {
             throw new Error("El usuario debe ser admin para realizar esta tarea");
@@ -154,11 +167,7 @@ export class TaskService {
             throw new Error("Todos los campos son obligatorios");
         }
 
-        const taskUnassigned = await this.repository.getTask(idTask);
-
-        if (!taskUnassigned) {
-            throw new Error("Tarea inexistente");
-        }
+        const taskUnassigned = await this.getTask(idTask);
 
         if (taskUnassigned.assignedId !== null) {
             throw new Error("La tarea ya está asignada a otro usuario");

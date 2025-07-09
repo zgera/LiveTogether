@@ -21,7 +21,10 @@ interface CreateUserBody {
 // clase UserValidator abajo al fondo
 
 export class userService {
+    
+    // Repositorio
     private repository = new UserRepository  //Manera corta, cuando se compila es como si estuviera en el constructor de la clase
+    
     private userValidator = new UserValidator
 
     async createUser(userData: CreateUserBody): Promise<User>{

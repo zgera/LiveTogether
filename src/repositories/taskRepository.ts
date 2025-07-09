@@ -5,6 +5,7 @@ import { db } from "../db/db";
 export class TaskRepository {
 
     async createTask(name:string, description:string, familyId:string, creatorId:string, idDifficulty:number): Promise<Task>  {
+    
         return await db.task.create({
             data: {
                 name,
@@ -25,8 +26,20 @@ export class TaskRepository {
         return await db.task.findMany({ where: { familyId } });
     }
 
-    async getTasksIncompletedByFamily(familyId: string): Promise<Task[]>  {
-        return await db.task.findMany({ where: { familyId, completedByAdmin: false } });
+    async getTaskUnassigned(familyId: string): Promise<Task[]> {
+        return await db.task.findMany({ where: { familyId, assignedId: null } });
+    }
+
+    async getTaskAssignedUncompleted(familyId: string): Promise<Task[]> {
+        return await db.task.findMany({ where: { familyId, assignedId: { not: null }, completedByUser: false } });
+    }
+
+    async getTasksUnderReview(familyId: string): Promise<Task[]>  {
+        return await db.task.findMany({ where: { familyId, completedByUser: true, completedByAdmin: false } });
+    }
+
+    async getTaskCompletedByAdmin(familyId: string): Promise<Task[]> {
+        return await db.task.findMany({ where: { familyId, completedByUser: true } });
     }
 
     async getTasksCompletedByFamily(familyId: string): Promise<Task[]>  {
@@ -82,7 +95,7 @@ export class TaskRepository {
             }})
     }
 
-    async changeTaskDifficulty(idTask: string, idDifficulty: string): Promise<Task> {
+    async changeTaskDifficulty(idTask: string, idDifficulty: number): Promise<Task> {
         return await db.task.update({
             where: { idTask },
             data: {
@@ -90,7 +103,7 @@ export class TaskRepository {
             }})
     }
 
-    async getTasksByDifficulty(familyId: string, idDifficulty: string): Promise<Task[]> {
+    async getTasksByDifficulty(familyId: string, idDifficulty: number): Promise<Task[]> {
         return await db.task.findMany({ where: { familyId, idDifficulty } });
     }
     
