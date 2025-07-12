@@ -67,7 +67,7 @@ export class userService {
         }
 
         return user
-    }
+    } 
 }
 
 

@@ -1,7 +1,10 @@
 import { Task } from "@prisma/client";
 import { TaskRepository } from "../repositories/taskRepository";
+import { DifficultyRepository } from "../repositories/difficultyRepository";
 import { TokenData } from "./tokenData";
 import { AuthorizationService } from "./authorizationService";
+import { FamilyService } from "./familyService";
+import { diff } from "util";
 
 enum Difficulty {
     facil = 1,
@@ -14,8 +17,10 @@ export class TaskService {
     
     // Repositorio
     private repository = new TaskRepository();
+    private difficultyRepository = new DifficultyRepository();
 
     // Servicios
+    private familyService = new FamilyService();
     private authorizationService = new AuthorizationService();
 
     async createTask(name: string, description: string, familyId: string, difficulty: string, token: TokenData): Promise<Task> {
@@ -50,7 +55,7 @@ export class TaskService {
         return task
     }
 
-    async getTasksByFamily(familyId: string, token: TokenData): Promise<Task[]> {
+    async getTasksUnassigned(familyId: string, token: TokenData): Promise<Task[]> {
         if (!familyId || !token) {
             throw new Error("Todos los campos son obligatorios");
         }
@@ -58,12 +63,41 @@ export class TaskService {
             throw new Error("El usuario no pertenece a la familia");
         }
         try {
-            const tasks = await this.repository.getTasksByFamily(familyId);
+            const tasks = await this.repository.getTaskUnassigned(familyId);
             return tasks;
         } catch (err: any) {
             throw new Error("Ocurrió un error al obtener las tareas. Intente más tarde");
         }
-    
+    }
+
+    async getTasksAssignedUncompletedByUser(familyId: string, token: TokenData): Promise<Task[]> {
+        if (!familyId || !token) {
+            throw new Error("Todos los campos son obligatorios");
+        }
+        if (!await this.authorizationService.isInFamily(token, familyId)) {
+            throw new Error("El usuario no pertenece a la familia");
+        }
+        try {
+            const tasks = await this.repository.getTaskAssignedUncompletedByUser(familyId, token.userId);
+            return tasks;
+        } catch (err: any) {
+            throw new Error("Ocurrió un error al obtener las tareas. Intente más tarde");
+        }
+    }
+
+    async getTasksUnderReviewByUser(familyId: string, token: TokenData): Promise<Task[]> {
+        if (!familyId || !token) {
+            throw new Error("Todos los campos son obligatorios");
+        }
+        if (!await this.authorizationService.isInFamily(token, familyId)) {
+            throw new Error("El usuario no pertenece a la familia");
+        }
+        try {
+            const tasks = await this.repository.getTaskUnderReviewByUser(familyId, token.userId);
+            return tasks;
+        } catch (err: any) {
+            throw new Error("Ocurrió un error al obtener las tareas. Intente más tarde");
+        }
     }
 
     async autoAssignTask(idTask: string, token: TokenData): Promise<Task> {
@@ -139,6 +173,29 @@ export class TaskService {
         }
     }
 
+    private async getDifficultyPoints(difficultyId: number): Promise<number> {
+        if (!difficultyId) {
+            throw new Error("El id de dificultad es obligatorio");
+        }
+        try {
+            const difficulty = await this.difficultyRepository.getDifficultyById(difficultyId);
+            if (!difficulty) {
+                throw new Error("Dificultad no encontrada");
+            }
+            return difficulty.points;
+        } catch (err: any) {
+            throw new Error("Ocurrió un error al obtener la dificultad. Intente más tarde");
+        }
+    }
+
+    private async consumeTaskPoints(task: Task): Promise<void> {
+        const difficultyPoints = await this.getDifficultyPoints(task.idDifficulty);
+        if (task.assignedId === null) {
+            throw new Error("La tarea no está asignada a ningún usuario");
+        }
+        await this.familyService.addPointsToMemberInFamily(task.familyId, task.assignedId, difficultyPoints);
+    }
+
     async completeTaskAsAdmin(idTask: string, token: TokenData): Promise<Task> {
         if (!idTask || !token) {
             throw new Error("Todos los campos son obligatorios");
@@ -156,6 +213,7 @@ export class TaskService {
 
         try {
             const taskCompleted = await this.repository.markTaskAsCompletedByAdmin(idTask);
+            await this.consumeTaskPoints(taskCompleted);
             return taskCompleted;
         } catch (err: any) {
             throw new Error("Ocurrió un error al completar la tarea. Intente más tarde");

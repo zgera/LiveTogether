@@ -8,6 +8,7 @@ model Task {
     creatorId String
     assignedId String?
     idDifficulty Int
+    Date DateTime @default(now())
 
     creator     User     @relation("CreatorTasks", fields: [creatorId], references: [idUser])
     assignedTo  User?    @relation("AssignedTasks", fields: [assignedId], references: [idUser])

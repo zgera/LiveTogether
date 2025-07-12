@@ -103,18 +103,21 @@ export class FamilyUserRepository {
         return null;
     }
 
-    async changeUserPoints(idFamily:string, idUser: string, points: number): Promise<FamilyUser | null> {
+    async addPointsToMemberInFamily(idFamily: string, idUser: string, addedPoints: number): Promise<FamilyUser> {
         const idFamilyUser = await this.getFamilyUserId(idUser, idFamily);
+
         if (idFamilyUser) {
             return await db.familyUser.update({
                 where: {
                     idFamilyUser
                 },
                 data: {
-                    points: points
+                    points: {
+                        increment: addedPoints
+                    }
                 }
-            })
+            });
         }
-        return null;
+        throw new Error("El usuario no pertenece a la familia");
     }
 }

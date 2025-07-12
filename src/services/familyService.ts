@@ -89,9 +89,20 @@ export class FamilyService {
             throw new Error("Todos los campos son obligatorios");
         }
         try {
-            const familyUser = await this.familyUserRepository.userJoinFamily(idUser, idFamily, idRol);
+            await this.familyUserRepository.userJoinFamily(idUser, idFamily, idRol);
         } catch (err: any) {
             throw new Error("Ocurrió un error al unirse a la familia. Intente más tarde");
+        }
+    }
+
+    async addPointsToMemberInFamily(idFamily: string, idUser: string, points: number){
+        if (!idFamily || !idUser || !points) {
+            throw new Error("Todos los campos son obligatorios");
+        }
+        try {
+            await this.familyUserRepository.addPointsToMemberInFamily(idFamily, idUser, points);
+        } catch (err: any) {
+            throw new Error("Ocurrió un error al agregar puntos al miembro de la familia. Intente más tarde");
         }
     }
 

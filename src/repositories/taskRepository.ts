@@ -22,12 +22,16 @@ export class TaskRepository {
         return await db.task.findUnique({ where: { idTask } })
     }
 
-    async getTasksByFamily(familyId: string): Promise<Task[]> {
-        return await db.task.findMany({ where: { familyId } });
-    }
-
     async getTaskUnassigned(familyId: string): Promise<Task[]> {
         return await db.task.findMany({ where: { familyId, assignedId: null } });
+    }
+
+    async getTaskAssignedUncompletedByUser(familyId: string, userId: string): Promise<Task[]> {
+        return await db.task.findMany({ where: { familyId, assignedId: userId, completedByUser: false } });
+    }
+
+    async getTaskUnderReviewByUser(familyId: string, userId: string): Promise<Task[]> {
+        return await db.task.findMany({ where: { familyId, assignedId: userId, completedByUser: true, completedByAdmin: false } });
     }
 
     async getTaskAssignedUncompleted(familyId: string): Promise<Task[]> {
