@@ -2,6 +2,14 @@ import { Task } from "@prisma/client";
 
 import { db } from "../db/db";
 
+const now = new Date();
+
+const startOfDay = new Date(now);
+startOfDay.setHours(0, 0, 0, 0);
+
+const endOfDay = new Date(now);
+endOfDay.setHours(23, 59, 59, 999);
+
 export class TaskRepository {
 
     async createTask(name:string, description:string, familyId:string, creatorId:string, idDifficulty:number): Promise<Task>  {
@@ -35,11 +43,31 @@ export class TaskRepository {
     }
 
     async getTaskAssignedUncompleted(familyId: string): Promise<Task[]> {
-        return await db.task.findMany({ where: { familyId, assignedId: { not: null }, completedByUser: false } });
+        return await db.task.findMany({ 
+            where: { 
+                familyId,
+                assignedId: { not: null }, 
+                completedByUser: false,
+                createdAt: {
+                    gte: startOfDay,
+                    lte: endOfDay
+                }
+            }
+        });
     }
 
     async getTasksUnderReview(familyId: string): Promise<Task[]>  {
-        return await db.task.findMany({ where: { familyId, completedByUser: true, completedByAdmin: false } });
+        return await db.task.findMany({ 
+            where: { 
+                familyId, 
+                completedByUser: true, 
+                completedByAdmin: false,
+                createdAt: {
+                    gte: startOfDay,
+                    lte: endOfDay
+                }
+            } 
+        });
     }
 
     async getTaskCompletedByAdmin(familyId: string): Promise<Task[]> {

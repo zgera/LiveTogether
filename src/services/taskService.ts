@@ -100,6 +100,36 @@ export class TaskService {
         }
     }
 
+    async getTasksAssignedUncompleted(familyId: string, token: TokenData): Promise<Task[]> {
+        if (!familyId || !token) {
+            throw new Error("Todos los campos son obligatorios");
+        }
+        if (!await this.authorizationService.isAdmin(token, familyId)) {
+            throw new Error("El usuario debe ser admin para realizar esta request");
+        }
+        try {
+            const tasks = await this.repository.getTaskAssignedUncompleted(familyId);
+            return tasks;
+        } catch (err: any) {
+            throw new Error("Ocurrió un error al obtener las tareas. Intente más tarde");
+        }
+    }
+
+    async getTasksUnderReview(familyId: string, token: TokenData): Promise<Task[]> {
+        if (!familyId || !token) {
+            throw new Error("Todos los campos son obligatorios");
+        }
+        if (!await this.authorizationService.isAdmin(token, familyId)) {
+            throw new Error("El usuario debe ser admin para realizar esta request");
+        }
+        try {
+            const tasks = await this.repository.getTasksUnderReview(familyId);
+            return tasks;
+        } catch (err: any) {
+            throw new Error("Ocurrió un error al obtener las tareas. Intente más tarde");
+        }
+    }
+
     async autoAssignTask(idTask: string, token: TokenData): Promise<Task> {
         if (!idTask || !token){
             throw new Error("Todos los campos son obligatorios")
