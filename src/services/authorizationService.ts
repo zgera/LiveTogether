@@ -1,6 +1,6 @@
 import { FamilyUserRepository } from "../repositories/familyUserRepository";
 import { RoleRepository } from "../repositories/roleRepository";
-import { TokenData } from "./tokenData";
+import { TokenData } from "../types/auth";
 
 export class AuthorizationService {
     private familyUserRepository = new FamilyUserRepository();

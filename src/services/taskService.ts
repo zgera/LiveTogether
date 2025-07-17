@@ -1,7 +1,7 @@
 import { Task } from "@prisma/client";
 import { TaskRepository } from "../repositories/taskRepository";
 import { DifficultyRepository } from "../repositories/difficultyRepository";
-import { TokenData } from "./tokenData";
+import { TokenData } from "../types/auth";
 import { AuthorizationService } from "./authorizationService";
 import { FamilyService } from "./familyService";
 

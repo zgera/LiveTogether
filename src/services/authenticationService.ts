@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken"
-import { TokenData } from "./tokenData"
+import { TokenData } from "../types/auth"
 
 export class authenticationService{
     static createToken(tokenData: TokenData){
@@ -12,8 +12,8 @@ export class authenticationService{
         return token
     }
 
-    static validateToken(encodedToken: string){
-        const decodedToken = jwt.verify(encodedToken, process.env.JWT_SECRET)
+    static validateToken(encodedToken: string): TokenData{
+        const decodedToken = jwt.verify(encodedToken, process.env.JWT_SECRET) as TokenData
         return decodedToken
     }
 }

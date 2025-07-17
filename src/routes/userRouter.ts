@@ -1,12 +1,12 @@
-import {Router} from "express"
+import {Router, Request, Response} from "express"
 
 import { userService } from "../services/userService"
 
 import { authenticationService } from "../services/authenticationService";
 
-import { TokenData } from "../services/tokenData";
+import { TokenData } from "../types/auth";
 
-import { autenticarToken } from "./middleware/authMiddleware";
+import { autenticarToken } from "../middleware/authMiddleware";
 
 interface CreateUserBody {
   firstName: string,
@@ -19,7 +19,7 @@ const UserService = new userService();
 
 export const userRouter = Router()
 
-userRouter.post("/signin", async (req, res) => {
+userRouter.post("/signin", async (req: Request, res: Response) => {
     const { username, password } = req.body
 
     try {
@@ -47,7 +47,7 @@ userRouter.post("/signin", async (req, res) => {
     }
 })
 
-userRouter.post("/signup", async (req, res) => {
+userRouter.post("/signup", async (req: Request, res: Response) => {
     const { firstName, lastName, username, password } = req.body
 
     const userBody: CreateUserBody = {
@@ -67,13 +67,13 @@ userRouter.post("/signup", async (req, res) => {
 })
 
 userRouter.get("/me", autenticarToken, async (req, res) => {
-    const { idUser } = req.user;
+    const token = req.user!;
 
     try {
-        const user = await UserService.getUser(idUser);
+        const user = await UserService.getUser(token.userId); // ← asumimos que espera el ID del usuario
         res.send({ user });
     } catch (error) {
         const message = error instanceof Error ? error.message : 'Error inesperado al obtener el usuario';
         res.status(404).send({ error: message });
     }
-})
+});

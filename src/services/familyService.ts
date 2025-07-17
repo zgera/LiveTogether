@@ -5,7 +5,7 @@ import { FamilyRepository } from "../repositories/familyRepository";
 import { userService } from "./userService";
 import { AuthorizationService } from "./authorizationService";
 import { FamilyUserRepository } from "../repositories/familyUserRepository";
-import { TokenData } from "./tokenData";
+import { TokenData } from "../types/auth";
 
 export class FamilyService {
 
@@ -62,7 +62,7 @@ export class FamilyService {
         return families;
     }
 
-    async getMembers(idFamily: string, token: TokenData): Promise<User[]> {
+    async getMembers(idFamily: string, token: TokenData): Promise<UserSafe[]> {
         if (!idFamily || !token) {
             throw new Error("Todos los campos son obligatorios");
         }
@@ -74,7 +74,7 @@ export class FamilyService {
         }
 
         const membersIDs = await this.familyUserRepository.getFamilyMembers(idFamily);
-        const members = await Promise.all(
+        const members: UserSafe[] = await Promise.all(
             membersIDs.map(async (member) => {
                 const user = await this.userService.getUser(member.idUser);
                 return user;

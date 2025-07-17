@@ -1,6 +1,6 @@
 import { User } from "@prisma/client";
 import { UserSafe } from "../types/user";
-import { TokenData } from "./tokenData";
+import { TokenData } from "../types/auth";
 
 import bcrypt from "bcrypt";
 

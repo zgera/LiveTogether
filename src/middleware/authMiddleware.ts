@@ -1,11 +1,12 @@
 import { Request, Response, NextFunction } from "express"
-import { authenticationService } from "../../services/authenticationService";
+import { authenticationService } from "../services/authenticationService";
+import { TokenData } from "../types/auth";
 
 // Extiende la interfaz Request para incluir 'usuario'
 declare global {
   namespace Express {
     interface Request {
-      user?: any;
+      user?: TokenData;
     }
   }
 }

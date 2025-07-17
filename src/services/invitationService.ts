@@ -1,5 +1,5 @@
 import { InvitationRepository } from "../repositories/invitationRepository";
-import { TokenData } from "./tokenData";
+import { TokenData } from "../types/auth";
 import { AuthorizationService } from "./authorizationService";
 import { userService } from "./userService";
 import { FamilyService } from "./familyService";
