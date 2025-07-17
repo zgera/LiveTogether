@@ -30,8 +30,8 @@ export class UserRepository {
         return user;
     }
 
-    async changePassword(idUser: string, password: string): Promise<User> {}
+    //async changePassword(idUser: string, password: string): Promise<User> {}
 
-    async deleteUser(idUser: string): Promise<User> {}
+    //async deleteUser(idUser: string): Promise<User> {}
 
 }

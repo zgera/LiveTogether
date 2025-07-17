@@ -1,4 +1,5 @@
 import { User } from "@prisma/client";
+import { UserSafe } from "../types/user";
 import { TokenData } from "./tokenData";
 
 import bcrypt from "bcrypt";
@@ -27,24 +28,29 @@ export class userService {
     
     private userValidator = new UserValidator
 
-    async createUser(userData: CreateUserBody): Promise<User>{
+    private createUserSafe(user: User): UserSafe {
+        const { password, ...userSafe } = user;
+        return userSafe;
+    }
+
+    async createUser(userData: CreateUserBody): Promise<UserSafe>{
         await this.userValidator.validate(userData, this.repository)
         const hashedPassword = await bcrypt.hash(userData.password, saltRounds)
 
         try {
-            let user = await this.repository.createUser(userData.firstName, userData.lastName, userData.username, hashedPassword)
-            return user
+            const user = await this.repository.createUser(userData.firstName, userData.lastName, userData.username, hashedPassword)
+            return this.createUserSafe(user)
         } catch (err: any){
             throw new Error("Ocurrio un error al crear el usuario. Intente mas tarde")
         }
     }
 
-    async verifyUser(token: TokenData, password: string): Promise<User>{
+    async verifyUser(token: TokenData, password: string): Promise<UserSafe>{
         if (!token || !password) {
             throw new Error("Todos los campos son obligatorios")
         }
 
-        const user = await this.getUser(token.userId)
+        const user = await this.getUserComplete(token.userId)
 
         const isPasswordValid = await bcrypt.compare(password, user.password)
 
@@ -52,10 +58,10 @@ export class userService {
             throw new Error("Contraseña incorrecta")
         }
 
-        return user
+        return this.createUserSafe(user);
     }
 
-    async getUser(idUser: string): Promise<User> {
+    private async getUserComplete(idUser: string): Promise<User> {
         if (!idUser) {
             throw new Error("El id del usuario es obligatorio")
         }
@@ -67,6 +73,11 @@ export class userService {
         }
 
         return user
+    }
+
+    async getUser(idUser: string): Promise<UserSafe> {
+        const user = await this.getUserComplete(idUser)
+        return this.createUserSafe(user);
     } 
 }
 

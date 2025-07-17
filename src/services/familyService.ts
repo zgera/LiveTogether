@@ -1,5 +1,5 @@
 import { Family } from "@prisma/client"
-import { User } from "@prisma/client";
+import { UserSafe } from "../types/user";
 
 import { FamilyRepository } from "../repositories/familyRepository";
 import { userService } from "./userService";
