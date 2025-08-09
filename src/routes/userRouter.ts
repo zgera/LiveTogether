@@ -39,7 +39,27 @@ userRouter.post("/signin", async (req: Request, res: Response) => {
                 sameSite: 'strict',
                 maxAge: 1000 * 60 * 60
             })
+            .status(200)
             .send({ user })
+
+    } catch (error) {
+        const message = error instanceof Error ? error.message : 'Error inesperado al iniciar sesión';
+        res.status(401).send({ error: message });
+    }
+})
+
+userRouter.get("/signout", async (req: Request, res: Response) => {
+    try {
+        const access_token = req.cookies?.access_token;
+
+        if (!access_token) throw new Error('No hay ninguna sesión iniciada')
+
+        res.clearCookie('access_token', { 
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: 'strict',
+        })
+        res.status(200).send({ message: 'Sesion cerrada exitosamente' });
 
     } catch (error) {
         const message = error instanceof Error ? error.message : 'Error inesperado al iniciar sesión';

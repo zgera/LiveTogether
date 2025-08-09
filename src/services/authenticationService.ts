@@ -4,7 +4,7 @@ import { TokenData } from "../types/auth"
 export class authenticationService{
     static createToken(tokenData: TokenData){
         const token = jwt.sign(
-            {id: tokenData.userId, username: tokenData.userName},
+            {userId: tokenData.userId, username: tokenData.userName},
             process.env.JWT_SECRET,
             {
                 expiresIn: "1h"

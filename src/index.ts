@@ -1,6 +1,8 @@
 import "dotenv/config"
-import { userRouter } from "./routes/userRouter";
 import cookieParser from 'cookie-parser';
+
+import { userRouter } from "./routes/userRouter";
+import { familyRouter } from "./routes/familyRouter";
 
 import express from 'express';
 
@@ -10,6 +12,7 @@ app.use(express.json())
 app.use(cookieParser());
 
 app.use('/user', userRouter)
+app.use('/family', familyRouter)
 
 app.listen(8000, () => {
   console.log(`App listening on http://localhost:8000`)
