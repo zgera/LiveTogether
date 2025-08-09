@@ -33,7 +33,7 @@ userRouter.post("/signin", async (req: Request, res: Response) => {
         const token = authenticationService.createToken(tokenData)
 
         res
-            .cookie('acces_token', token, {
+            .cookie('access_token', token, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
                 sameSite: 'strict',
@@ -67,13 +67,27 @@ userRouter.post("/signup", async (req: Request, res: Response) => {
 })
 
 userRouter.get("/me", autenticarToken, async (req, res) => {
-    const token = req.user!;
+    const token = req.user;
+
+    if (!token || !token.userId) {
+        res.status(401).send({ error: 'No autenticado' });
+        return;
+    }
+
+    console.log("Token userId:", token.userId); // Log para depuración
 
     try {
-        const user = await UserService.getUser(token.userId); // ← asumimos que espera el ID del usuario
-        res.send({ user });
+        const user = await UserService.getUser((token.userId));
+        res.send({ user }); 
     } catch (error) {
         const message = error instanceof Error ? error.message : 'Error inesperado al obtener el usuario';
-        res.status(404).send({ error: message });
+
+        // Mejoramos el status según el tipo de error
+        if (message === "Usuario no encontrado") {
+            res.status(404).json({ error: message });
+            return;
+        }
+
+        res.status(500).json({ error: message });
     }
 });

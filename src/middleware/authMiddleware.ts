@@ -12,7 +12,7 @@ declare global {
 }
 
 export function autenticarToken(req: Request, res: Response, next: NextFunction){
-    const token = req.cookies.token
+    const token = req.cookies.access_token
 
     if (!token){
         res.status(401).json({mensaje: "No autenticado"})

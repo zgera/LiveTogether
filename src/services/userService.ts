@@ -45,12 +45,12 @@ export class userService {
         }
     }
 
-    async verifyUser(token: TokenData, password: string): Promise<UserSafe>{
-        if (!token || !password) {
+    async verifyUser(username: string, password: string): Promise<UserSafe>{
+        if (!username || !password) {
             throw new Error("Todos los campos son obligatorios")
-        }
+        }0.
 
-        const user = await this.getUserComplete(token.userId)
+        const user = await this.getUserCompleteByUsername(username)
 
         const isPasswordValid = await bcrypt.compare(password, user.password)
 
@@ -78,7 +78,22 @@ export class userService {
     async getUser(idUser: string): Promise<UserSafe> {
         const user = await this.getUserComplete(idUser)
         return this.createUserSafe(user);
-    } 
+    }
+
+    private async getUserCompleteByUsername(username: string): Promise<User> {
+        if (!username) {
+            throw new Error("El id del usuario es obligatorio")
+        }
+
+        const user = await this.repository.findByUsername(username)
+
+        if (!user) {
+            throw new Error("Usuario no encontrado")
+        }
+
+        return user
+    }
+
 }
 
 
