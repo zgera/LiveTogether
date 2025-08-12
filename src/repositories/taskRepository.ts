@@ -24,7 +24,7 @@ export class TaskRepository {
                 creatorId,
                 idDifficulty
             }})
-    }
+    }   
 
     async getTask(idTask: string): Promise<Task | null>{
         return await db.task.findUnique({ where: { idTask } })

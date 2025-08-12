@@ -22,21 +22,21 @@ export class TaskService {
     private familyService = new FamilyService();
     private authorizationService = new AuthorizationService();
 
-    async createTask(name: string, description: string, familyId: string, difficulty: string, token: TokenData): Promise<Task> {
+    async createTask(name: string, description: string, familyId: string, difficulty: number, token: TokenData): Promise<Task> {
         if (!name || !description || !familyId || !difficulty || !token) {
             throw new Error("Todos los campos son obligatorios");
         }
 
-        if (difficulty !== "facil" && difficulty !== "media" && difficulty !== "dificil") {
+        /* if (difficulty !== 1 && difficulty !== 2 && difficulty !== 3) {
             throw new Error("Dificultad inválida")
-        }
+        } */
 
         if (!await this.authorizationService.isInFamily(token, familyId)){
             throw new Error ("El usuario no pertenece a la familia")
         }
 
         try {
-            const task = await this.repository.createTask(name, description, familyId, token.userId, Difficulty[difficulty as keyof typeof Difficulty]);
+            const task = await this.repository.createTask(name, description, familyId, token.userId, difficulty);
             return task;
         } catch (err: any) {
             throw new Error("Ocurrió un error al crear la tarea. Intente más tarde");

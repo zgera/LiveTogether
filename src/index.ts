@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser';
 import { userRouter } from "./routes/userRouter";
 import { familyRouter } from "./routes/familyRouter";
 import { invitationRouter } from "./routes/invitationRouter";
+import { taskRouter } from "./routes/taskRouter";
 
 import express from 'express';
 
@@ -15,7 +16,8 @@ app.use(cookieParser());
 app.use('/user', userRouter)
 app.use('/family', familyRouter)
 app.use('/invitation', invitationRouter)
+app.use('/task', taskRouter)
 
-app.listen(8000, () => {
-  console.log(`App listening on http://localhost:8000`)
+app.listen(3000, () => {
+  console.log(`App listening on http://localhost:3000`)
 })

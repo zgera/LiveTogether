@@ -2,10 +2,6 @@ import {Router, Request, Response} from "express"
 
 import { FamilyService } from "../services/familyService";
 
-import { authenticationService } from "../services/authenticationService";
-
-import { TokenData } from "../types/auth";
-
 import { autenticarToken } from "../middleware/authMiddleware";
 
 const familyService = new FamilyService();
