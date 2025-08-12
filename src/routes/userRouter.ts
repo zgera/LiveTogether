@@ -87,15 +87,8 @@ userRouter.post("/signup", async (req: Request, res: Response) => {
 })
 
 userRouter.get("/me", autenticarToken, async (req, res) => {
-    const token = req.user;
-
-    if (!token || !token.userId) {
-        res.status(401).send({ error: 'No autenticado' });
-        return;
-    }
-
-    console.log("Token userId:", token.userId); // Log para depuración
-
+    const token = req.user!;
+    
     try {
         const user = await UserService.getUser((token.userId));
         res.send({ user }); 

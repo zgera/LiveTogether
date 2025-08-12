@@ -60,7 +60,7 @@ export class InvitationService {
         }
     }
 
-    async getInvitationsSendedFromFamily(idFamily: string, token: TokenData): Promise<Invitation[]> {
+    async getInvitationsSentFromFamily(idFamily: string, token: TokenData): Promise<Invitation[]> {
         if (!idFamily || !token) {
             throw new Error("Todos los campos son obligatorios");
         }
