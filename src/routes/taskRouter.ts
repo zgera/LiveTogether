@@ -76,7 +76,7 @@ taskRouter.get("/assigned/uncompleted/admin/:familyId", autenticarToken, async (
 });
 
 // Obtener tareas bajo revisión (admin)
-taskRouter.get("/underreview/admin/:familyId", autenticarToken, async (req: Request, res: Response) => {
+taskRouter.get("/underreview/:familyId", autenticarToken, async (req: Request, res: Response) => {
     const { familyId } = req.params;
     const token = req.user!;
 

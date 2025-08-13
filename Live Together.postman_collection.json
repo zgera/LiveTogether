@@ -1,0 +1,323 @@
+{
+	"info": {
+		"_postman_id": "9d9c2470-459b-469e-9a5d-c0feda5b00ef",
+		"name": "Live Together",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "43784031"
+	},
+	"item": [
+		{
+			"name": "crear usuario",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"firstName\": \"Joaco\",\r\n    \"lastName\": \"Fernandez\",\r\n    \"username\": \"jFernandez\",\r\n    \"password\": \"12345678\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/user/signup",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"user",
+						"signup"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "iniciar sesión caludio",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"FedeCG07\",\r\n    \"password\": \"12345678\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/user/signin",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"user",
+						"signin"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "iniciar sesión jFernandez",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"jFernandez\",\r\n    \"password\": \"12345678\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/user/signin",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"user",
+						"signin"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "cerrar sesión",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/user/signout",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"user",
+						"signout"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "invitar a familia",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"familyId\": \"cme4n2zu70000ubtoo8jzbr7f\",\r\n    \"userId\": \"cme95fz8w0000fo8s6j9ldv9z\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/invitation/create",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"invitation",
+						"create"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ver invitaciones recibidas",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/invitation/get",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"invitation",
+						"get"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "aceptar invitación",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/invitation/accept/cme95lqgx0002fo8s8evxuj02",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"invitation",
+						"accept",
+						"cme95lqgx0002fo8s8evxuj02"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "crear tarea",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"Lavar los platos\",\r\n    \"description\": \"Lavar todos los platos sucios\",\r\n    \"familyId\": \"cme4n2zu70000ubtoo8jzbr7f\",\r\n    \"difficulty\": 1\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/task/create",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"task",
+						"create"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ver tareas no asignadas",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/task/unassigned/cme4n2zu70000ubtoo8jzbr7f",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"task",
+						"unassigned",
+						"cme4n2zu70000ubtoo8jzbr7f"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "autoasignar tarea",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/task/autoassign/cme95oqe80004fo8srl127nhq",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"task",
+						"autoassign",
+						"cme95oqe80004fo8srl127nhq"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "completar tarea usuario",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/task/complete/user/cme95oqe80004fo8srl127nhq",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"task",
+						"complete",
+						"user",
+						"cme95oqe80004fo8srl127nhq"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "tareas en revisión",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/task/underreview/cme4n2zu70000ubtoo8jzbr7f",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"task",
+						"underreview",
+						"cme4n2zu70000ubtoo8jzbr7f"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "completar tarea admin",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/task/complete/admin/cme95oqe80004fo8srl127nhq",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"task",
+						"complete",
+						"admin",
+						"cme95oqe80004fo8srl127nhq"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

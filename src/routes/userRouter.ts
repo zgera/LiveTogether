@@ -16,12 +16,10 @@ interface CreateUserBody {
 }
 
 const UserService = new userService();
-console.log("userRouter cargado");
 
 export const userRouter = Router()
 
 userRouter.post("/signin", async (req: Request, res: Response) => {
-    console.log("POST /user/signin llamado");
     const { username, password } = req.body
 
     try {
