@@ -69,9 +69,7 @@ export class FamilyService {
 
         await this.getFamily(idFamily); // Verifica si la familia existe
 
-        if (!await this.authorizationService.isInFamily(token, idFamily)) {
-            throw new Error("El usuario no pertenece a la familia");
-        }
+        await this.authorizationService.assertUserInFamily(token, idFamily)
 
         const membersIDs = await this.familyUserRepository.getFamilyMembers(idFamily);
         const members: UserSafe[] = await Promise.all(
@@ -112,9 +110,7 @@ export class FamilyService {
             throw new Error("Todos los campos son obligatorios");
         }
 
-        if (!await this.authorizationService.isAdmin(token, idFamily)) {
-            throw new Error("El usuario debe ser admin para realizar esta tarea");
-        }
+        await this.authorizationService.assertUserIsAdmin(token, idFamily)
 
         return await this.repository.deleteFamily(idFamily);
     }

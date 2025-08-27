@@ -27,13 +27,11 @@ export class TaskService {
             throw new Error("Todos los campos son obligatorios");
         }
 
-        /* if (difficulty !== 1 && difficulty !== 2 && difficulty !== 3) {
+        if (difficulty !== 1 && difficulty !== 2 && difficulty !== 3) {
             throw new Error("Dificultad inválida")
-        } */
-
-        if (!await this.authorizationService.isInFamily(token, familyId)){
-            throw new Error ("El usuario no pertenece a la familia")
         }
+
+        await this.authorizationService.assertUserInFamily(token, familyId)
 
         try {
             const task = await this.repository.createTask(name, description, familyId, token.userId, difficulty);
@@ -58,9 +56,9 @@ export class TaskService {
         if (!familyId || !token) {
             throw new Error("Todos los campos son obligatorios");
         }
-        if (!await this.authorizationService.isInFamily(token, familyId)) {
-            throw new Error("El usuario no pertenece a la familia");
-        }
+
+        await this.authorizationService.assertUserInFamily(token, familyId)
+
         try {
             const tasks = await this.repository.getTaskUnassigned(familyId);
             return tasks;
@@ -73,9 +71,9 @@ export class TaskService {
         if (!familyId || !token) {
             throw new Error("Todos los campos son obligatorios");
         }
-        if (!await this.authorizationService.isInFamily(token, familyId)) {
-            throw new Error("El usuario no pertenece a la familia");
-        }
+
+        await this.authorizationService.assertUserInFamily(token, familyId)
+
         try {
             const tasks = await this.repository.getTaskAssignedUncompletedByUser(familyId, token.userId);
             return tasks;
@@ -88,9 +86,9 @@ export class TaskService {
         if (!familyId || !token) {
             throw new Error("Todos los campos son obligatorios");
         }
-        if (!await this.authorizationService.isInFamily(token, familyId)) {
-            throw new Error("El usuario no pertenece a la familia");
-        }
+
+        await this.authorizationService.assertUserInFamily(token, familyId)
+
         try {
             const tasks = await this.repository.getTaskUnderReviewByUser(familyId, token.userId);
             return tasks;
@@ -103,9 +101,9 @@ export class TaskService {
         if (!familyId || !token) {
             throw new Error("Todos los campos son obligatorios");
         }
-        if (!await this.authorizationService.isAdmin(token, familyId)) {
-            throw new Error("El usuario debe ser admin para realizar esta request");
-        }
+
+        await this.authorizationService.assertUserIsAdmin(token, familyId)
+
         try {
             const tasks = await this.repository.getTaskAssignedUncompleted(familyId);
             return tasks;
@@ -118,9 +116,9 @@ export class TaskService {
         if (!familyId || !token) {
             throw new Error("Todos los campos son obligatorios");
         }
-        if (!await this.authorizationService.isAdmin(token, familyId)) {
-            throw new Error("El usuario debe ser admin para realizar esta request");
-        }
+        
+        await this.authorizationService.assertUserIsAdmin(token, familyId)
+
         try {
             const tasks = await this.repository.getTasksUnderReview(familyId);
             return tasks;
@@ -140,9 +138,7 @@ export class TaskService {
             throw new Error("La tarea ya está asignada a otro usuario");
         }
 
-        if (!await this.authorizationService.isInFamily(token, taskUnassigned.familyId)){
-            throw new Error ("El usuario no pertenece a la familia de la tarea")
-        }
+        await this.authorizationService.assertUserInFamily(token, taskUnassigned.familyId)
 
         try {
             const taskAssigned = await this.repository.assignTaskToUser(idTask, token.userId);
@@ -163,9 +159,7 @@ export class TaskService {
             throw new Error("La tarea no está asignada a ningún usuario");
         }
 
-        if (!await this.authorizationService.isAdmin(token, taskAssigned.familyId)){
-            throw new Error ("El usuario debe ser admin para realizar esta tarea")
-        }
+        await this.authorizationService.assertUserIsAdmin(token, taskAssigned.familyId)
 
         try {
             const taskUnassigned = await this.repository.unassignTaskFromUser(idTask)
@@ -182,9 +176,7 @@ export class TaskService {
 
         const taskAssigned = await this.getTask(idTask);
 
-        if (!await this.authorizationService.isInFamily(token, taskAssigned.familyId)) {
-            throw new Error("El usuario no pertenece a la familia de la tarea");
-        }
+        await this.authorizationService.assertUserInFamily(token, taskAssigned.familyId)
 
         if (taskAssigned.assignedId !== token.userId) {
             throw new Error("El usuario no es el encargado de la tarea");
@@ -232,9 +224,7 @@ export class TaskService {
 
         const taskAssigned = await this.getTask(idTask);
 
-        if (!await this.authorizationService.isAdmin(token, taskAssigned.familyId)) {
-            throw new Error("El usuario debe ser admin para realizar esta tarea");
-        }
+        await this.authorizationService.assertUserIsAdmin(token, taskAssigned.familyId)
 
         if (taskAssigned.completedByAdmin) {
             throw new Error("La tarea ya ha sido completada por el administrador");
@@ -260,9 +250,7 @@ export class TaskService {
             throw new Error("La tarea ya está asignada a otro usuario");
         }
 
-        if (!await this.authorizationService.isAdmin(token, taskUnassigned.familyId)) {
-            throw new Error("El usuario debe ser admin para realizar esta tarea");
-        }
+        await this.authorizationService.assertUserIsAdmin(token, taskUnassigned.familyId)
 
         try {
             const taskAssigned = await this.repository.assignTaskToUser(idTask, idUser);

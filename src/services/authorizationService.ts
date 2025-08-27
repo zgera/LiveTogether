@@ -14,6 +14,13 @@ export class AuthorizationService {
         return userInFamily;
     }
 
+    async assertUserInFamily(token: TokenData, familyId: string): Promise<void> {
+        const isMember = await this.isInFamily(token, familyId);
+        if (!isMember) {
+            throw new Error("El usuario no pertenece a la familia");
+        }
+    }
+
     async isAdmin(token: TokenData, familyId: string): Promise<boolean> {
 
         const idRole = await this.familyUserRepository.getFamilyUserRole(token.userId, familyId);
@@ -25,5 +32,12 @@ export class AuthorizationService {
         const roleName = await this.roleRepository.getRole(idRole)
     
         return roleName === "admin"
+    }
+
+    async assertUserIsAdmin(token: TokenData, familyId: string): Promise<void> {
+        const isAdmin = await this.isAdmin(token, familyId);
+        if (!isAdmin) {
+            throw new Error("El usuario no tiene permisos de administrador");
+        }
     }
 }

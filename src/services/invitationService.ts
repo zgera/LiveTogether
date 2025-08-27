@@ -20,9 +20,7 @@ export class InvitationService {
             throw new Error("Todos los campos son obligatorios");
         }
 
-        if (!await this.authorizationService.isAdmin(token, idFamily)) {
-            throw new Error("El usuario debe ser admin para realizar esta tarea");
-        }
+        await this.authorizationService.assertUserIsAdmin(token, idFamily)
 
         await this.userService.getUser(idUserInvited); // Verifica si el usuario existe
 
@@ -65,9 +63,7 @@ export class InvitationService {
             throw new Error("Todos los campos son obligatorios");
         }
 
-        if (!await this.authorizationService.isAdmin(token, idFamily)) {
-            throw new Error("El usuario debe ser admin para realizar esta tarea");
-        }
+        await this.authorizationService.assertUserIsAdmin(token, idFamily)
 
         try {
             const invitations = await this.repository.getInvitationsSendedFromFamily(idFamily);

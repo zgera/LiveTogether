@@ -31,8 +31,17 @@ export class TaskRepository {
     }
 
     async getTaskUnassigned(familyId: string): Promise<Task[]> {
-        return await db.task.findMany({ where: { familyId, assignedId: null } });
+        return await db.task.findMany({
+            where: {
+                familyId,
+                assignedId: null
+            },
+            orderBy: {
+                idDifficulty: 'desc'
+            }
+        });
     }
+
 
     async getTaskAssignedUncompletedByUser(familyId: string, userId: string): Promise<Task[]> {
         return await db.task.findMany({ where: { familyId, assignedId: userId, completedByUser: false } });
