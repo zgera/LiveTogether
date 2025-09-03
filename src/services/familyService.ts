@@ -1,4 +1,4 @@
-import { Family } from "@prisma/client"
+import { Family, User } from "@prisma/client"
 import { UserSafe } from "../types/user";
 
 import { FamilyRepository } from "../repositories/familyRepository";
@@ -45,12 +45,7 @@ export class FamilyService {
         return familia;
     }
 
-    async getFamiliesByUser(token: TokenData): Promise<Family[]> {
-        if (!token) {
-            throw new Error("El token es obligatorio");
-        }
-
-        const familiesIDs = await this.familyUserRepository.getFamiliesByUser(token.userId);
+    async getFamiliesByIDs(familiesIDs: {idFamily: string}[]): Promise<Family[]> {
 
         const families: Family[] = await Promise.all(
             familiesIDs.map(async (family) => {
@@ -62,6 +57,34 @@ export class FamilyService {
         return families;
     }
 
+    async getFamiliesByUser(token: TokenData): Promise<Family[]> {
+        if (!token) {
+            throw new Error("El token es obligatorio");
+        }
+
+        const familiesIDs = await this.familyUserRepository.getFamiliesByUser(token.userId);
+
+        const families = await this.getFamiliesByIDs(familiesIDs)
+
+        return families;
+    }
+
+    async getFamilyMembers(idFamily: string): Promise<{idUser: string,idRole: number,points: number}[]>{
+        return await this.familyUserRepository.getFamilyMembers(idFamily)
+    }
+
+    async getUsersByIDs(membersIDs: {idUser: string}[]): Promise<UserSafe[]> {
+
+        const members: UserSafe[] = await Promise.all(
+            membersIDs.map(async (member) => {
+                const user = await this.userService.getUser(member.idUser);
+                return user;
+            })
+        );
+        
+        return members
+    }
+
     async getMembers(idFamily: string, token: TokenData): Promise<UserSafe[]> {
         if (!idFamily || !token) {
             throw new Error("Todos los campos son obligatorios");
@@ -71,13 +94,9 @@ export class FamilyService {
 
         await this.authorizationService.assertUserInFamily(token, idFamily)
 
-        const membersIDs = await this.familyUserRepository.getFamilyMembers(idFamily);
-        const members: UserSafe[] = await Promise.all(
-            membersIDs.map(async (member) => {
-                const user = await this.userService.getUser(member.idUser);
-                return user;
-            })
-        );
+        const membersIDs = await this.getFamilyMembers(idFamily)
+        
+        const members = await this.getUsersByIDs(membersIDs)
 
         return members;
     }

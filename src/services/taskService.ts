@@ -260,4 +260,13 @@ export class TaskService {
         }
     }
 
+    async automaticallyAsignTasks(token: TokenData, idFamily: string){
+
+        await this.familyService.getFamily(idFamily) //Verifica que exista la familia
+        await this.authorizationService.assertUserIsAdmin(token, idFamily)
+
+        const members = await this.familyService.getFamilyMembers(idFamily)
+        const tasks = await this.repository.getTaskUnassigned(idFamily)
+    }
+
 }

@@ -74,6 +74,10 @@ export class FamilyUserRepository {
                 idUser: true,
                 idRole: true,
                 points: true
+            },
+
+            orderBy: {
+                points: "asc"
             }
         })  
     }
