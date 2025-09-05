@@ -65,17 +65,11 @@ export class FamilyUserRepository {
         })
     }
 
-    async getFamilyMembers(idFamily: string): Promise<{idUser: string, idRole: number, points: number}[]> {
+    async getFamilyMembers(idFamily: string): Promise<FamilyUser[]> {
         return await db.familyUser.findMany({
             where: {
                 idFamily
             },
-            select: {
-                idUser: true,
-                idRole: true,
-                points: true
-            },
-
             orderBy: {
                 points: "asc"
             }

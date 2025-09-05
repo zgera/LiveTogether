@@ -1,4 +1,4 @@
-import { Task } from "@prisma/client";
+import { Task, User, FamilyUser } from "@prisma/client";
 import { TaskRepository } from "../repositories/taskRepository";
 import { DifficultyRepository } from "../repositories/difficultyRepository";
 import { TokenData } from "../types/auth";
@@ -260,6 +260,20 @@ export class TaskService {
         }
     }
 
+    extraTaskPerUser(user: FamilyUser, userMVP: FamilyUser): number{
+
+        if (user.idUser === userMVP.idUser){
+            return 0
+        }
+
+        const extraTasks: number = 1
+        const doubleUsersPoints: number = user.points * 2
+        if (doubleUsersPoints <= userMVP.points){
+            return extraTasks
+        }
+        return 0
+    }
+
     async automaticallyAsignTasks(token: TokenData, idFamily: string){
 
         await this.familyService.getFamily(idFamily) //Verifica que exista la familia
@@ -267,6 +281,24 @@ export class TaskService {
 
         const members = await this.familyService.getFamilyMembers(idFamily)
         const tasks = await this.repository.getTaskUnassigned(idFamily)
+
+        const index: number = 0
+
+        while(tasks.length > 0){
+            const user = members[index]
+
+            const taskCounter = 1 + this.extraTaskPerUser(user, members[-1])
+
+            for(let i = 0; i < taskCounter; i++){
+                const task = tasks.shift()
+                
+                if (!task){
+                    break
+                }
+
+                await this.repository.assignTaskToUser(task.idTask, user.idUser)  
+            }
+        }
     }
 
 }

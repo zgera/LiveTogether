@@ -1,4 +1,4 @@
-import { Family, User } from "@prisma/client"
+import { Family, User, FamilyUser} from "@prisma/client"
 import { UserSafe } from "../types/user";
 
 import { FamilyRepository } from "../repositories/familyRepository";
@@ -69,7 +69,7 @@ export class FamilyService {
         return families;
     }
 
-    async getFamilyMembers(idFamily: string): Promise<{idUser: string,idRole: number,points: number}[]>{
+    async getFamilyMembers(idFamily: string): Promise<FamilyUser[]>{
         return await this.familyUserRepository.getFamilyMembers(idFamily)
     }
 
