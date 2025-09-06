@@ -260,15 +260,23 @@ export class TaskService {
         }
     }
 
-    extraTaskPerUser(user: FamilyUser, userMVP: FamilyUser): number{
+    extraTaskPerUser(user: {assigned: boolean, idFamilyUser: string, idUser: string, idFamily: string, idRole: number, points: number}, membersRound: {assigned: boolean, idFamilyUser: string, idUser: string, idFamily: string, idRole: number, points: number}[]): number{
+
+        const userMVP = membersRound[membersRound.length - 1]
 
         if (user.idUser === userMVP.idUser){
             return 0
         }
 
+        if (user.assigned === true){
+            return 0
+        }
+
         const extraTasks: number = 1
         const doubleUsersPoints: number = user.points * 2
-        if (doubleUsersPoints <= userMVP.points){
+
+        if (doubleUsersPoints < userMVP.points){
+            user.assigned = true
             return extraTasks
         }
         return 0
@@ -280,14 +288,18 @@ export class TaskService {
         await this.authorizationService.assertUserIsAdmin(token, idFamily)
 
         const members = await this.familyService.getFamilyMembers(idFamily)
+        const membersRound = members.map(member => ({
+            ...member,
+            assigned: false
+            }));
         const tasks = await this.repository.getTaskUnassigned(idFamily)
 
-        const index: number = 0
+        let index: number = 0
 
         while(tasks.length > 0){
-            const user = members[index]
+            const user = membersRound[index]
 
-            const taskCounter = 1 + this.extraTaskPerUser(user, members[-1])
+            const taskCounter = 1 + this.extraTaskPerUser(user, membersRound)
 
             for(let i = 0; i < taskCounter; i++){
                 const task = tasks.shift()
@@ -298,7 +310,8 @@ export class TaskService {
 
                 await this.repository.assignTaskToUser(task.idTask, user.idUser)  
             }
+
+            index = (index + 1) % members.length
         }
     }
-
 }

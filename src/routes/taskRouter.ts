@@ -158,3 +158,9 @@ taskRouter.post("/assign/:idTask/:idUser", autenticarToken, async (req: Request,
         res.status(401).send({ error: message });
     }
 });
+
+// Asignar tareas automaticamente (admin)
+
+taskRouter.post("/autoAssign/:idFamily", autenticarToken, async(req: Request, res: Response) => {
+    
+})
