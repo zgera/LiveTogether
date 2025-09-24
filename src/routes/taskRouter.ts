@@ -1,9 +1,11 @@
 import { Router, Request, Response } from "express";
 import { TaskService } from "../services/taskService";
 import { autenticarToken } from "../middleware/authMiddleware";
+import { NtfyNotificationService } from "../notifs/notificationNtfy";
 
 const taskService = new TaskService();
 export const taskRouter = Router();
+const notif = new NtfyNotificationService("porkyserver");
 
 // Crear tarea
 taskRouter.post("/create", autenticarToken, async (req: Request, res: Response) => {
@@ -13,6 +15,7 @@ taskRouter.post("/create", autenticarToken, async (req: Request, res: Response) 
     try {
         const task = await taskService.createTask(name, description, familyId, difficulty, token);
         res.status(201).send({ task });
+        notif.sendNotification("MIERDA", `Se a creado la task ${task.name}`)
     } catch (error) {
         const message = error instanceof Error ? error.message : 'Error inesperado al crear tarea';
         res.status(401).send({ error: message });
