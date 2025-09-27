@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Cliente WebSocket Multi-Familia</title>
+</head>
+<body>
+  <h2>Cliente WebSocket</h2>
+  <pre id="log"></pre>
+
+  <script>
+    const token = 'TU_JWT_AQUI'; // Pon acá un JWT válido que incluya { families: [...] }
+    const ws = new WebSocket('ws://localhost:8080', [], {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    const log = document.getElementById('log');
+
+    function logMsg(msg) {
+      log.textContent += msg + '\n';
+    }
+
+    ws.onopen = () => logMsg('Conectado al servidor');
+    ws.onclose = () => logMsg('Desconectado');
+    ws.onerror = (e) => logMsg('Error: ' + e.message);
+    ws.onmessage = (e) => {
+      logMsg('Mensaje recibido: ' + e.data);
+    };
+
+    // Enviar un mensaje a la familia fam1 después de 3 segundos
+    setTimeout(() => {
+      const msg = { toFamily: 'fam1', message: 'Hola fam1 desde el cliente!' };
+      ws.send(JSON.stringify(msg));
+    }, 3000);
+  </script>
+</body>
+</html>
