@@ -1,8 +1,10 @@
 import { Router, Request, Response } from "express";
-import { TaskService } from "../services/taskService";
+import { TaskService, TaskAssignmentService, TaskCompletionSercice } from "../services/taskService";
 import { autenticarToken } from "../middleware/authMiddleware";
 
 const taskService = new TaskService();
+const taskAssignmentService = new TaskAssignmentService();
+const taskCompletionService = new TaskCompletionSercice();
 export const taskRouter = Router();
 
 // Crear tarea
@@ -95,7 +97,7 @@ taskRouter.post("/autoassign/:idTask", autenticarToken, async (req: Request, res
     const token = req.user!;
 
     try {
-        const task = await taskService.autoAssignTask(idTask, token);
+        const task = await taskAssignmentService.autoAssignTask(idTask, token);
         res.status(200).send({ task });
     } catch (error) {
         const message = error instanceof Error ? error.message : 'Error inesperado al asignar tarea';
@@ -109,7 +111,7 @@ taskRouter.post("/unassign/:idTask", autenticarToken, async (req: Request, res: 
     const token = req.user!;
 
     try {
-        const task = await taskService.unassignTask(idTask, token);
+        const task = await taskAssignmentService.unassignTask(idTask, token);
         res.status(200).send({ task });
     } catch (error) {
         const message = error instanceof Error ? error.message : 'Error inesperado al desasignar tarea';
@@ -123,7 +125,7 @@ taskRouter.post("/complete/user/:idTask", autenticarToken, async (req: Request, 
     const token = req.user!;
 
     try {
-        const task = await taskService.completeTaskAsUser(idTask, token);
+        const task = await taskCompletionService.completeTaskAsUser(idTask, token);
         res.status(200).send({ task });
     } catch (error) {
         const message = error instanceof Error ? error.message : 'Error inesperado al completar tarea';
@@ -137,7 +139,7 @@ taskRouter.post("/complete/admin/:idTask", autenticarToken, async (req: Request,
     const token = req.user!;
 
     try {
-        const task = await taskService.completeTaskAsAdmin(idTask, token);
+        const task = await taskCompletionService.completeTaskAsAdmin(idTask, token);
         res.status(200).send({ task });
     } catch (error) {
         const message = error instanceof Error ? error.message : 'Error inesperado al completar tarea como admin';
@@ -151,7 +153,7 @@ taskRouter.post("/assign/:idTask/:idUser", autenticarToken, async (req: Request,
     const token = req.user!;
 
     try {
-        const task = await taskService.assingTaskToUser(idTask, idUser, token);
+        const task = await taskAssignmentService.assingTaskToUser(idTask, idUser, token);
         res.status(200).send({ task });
     } catch (error) {
         const message = error instanceof Error ? error.message : 'Error inesperado al asignar tarea';
@@ -161,6 +163,15 @@ taskRouter.post("/assign/:idTask/:idUser", autenticarToken, async (req: Request,
 
 // Asignar tareas automaticamente (admin)
 
-taskRouter.post("/autoAssign/:idFamily", autenticarToken, async(req: Request, res: Response) => {
-    
+taskRouter.post("/automaticallyAsign/:idFamily", autenticarToken, async(req: Request, res: Response) => {
+    const { idFamily } = req.params
+    const token = req.user!;
+
+    try {
+        const task = await taskAssignmentService.automaticallyAsignTasks(token, idFamily)
+        res.status(200).send({ task })
+    } catch (error) {
+        const message = error instanceof Error ? error.message : 'Error inesperado al asignar tareas automaticamente';
+        res.status(401).send({ error: message });
+    }
 })

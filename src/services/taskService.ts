@@ -15,12 +15,12 @@ enum Difficulty {
 export class TaskService {
     
     // Repositorio
-    private repository = new TaskRepository();
-    private difficultyRepository = new DifficultyRepository();
+    protected repository = new TaskRepository();   
+    protected difficultyRepository = new DifficultyRepository();
 
     // Servicios
-    private familyService = new FamilyService();
-    private authorizationService = new AuthorizationService();
+    protected familyService = new FamilyService();
+    protected authorizationService = new AuthorizationService();
 
     async createTask(name: string, description: string, familyId: string, difficulty: number, token: TokenData): Promise<Task> {
         if (!name || !description || !familyId || !difficulty || !token) {
@@ -126,48 +126,9 @@ export class TaskService {
             throw new Error("Ocurrió un error al obtener las tareas. Intente más tarde");
         }
     }
+}
 
-    async autoAssignTask(idTask: string, token: TokenData): Promise<Task> {
-        if (!idTask || !token){
-            throw new Error("Todos los campos son obligatorios")
-        }
-
-        const taskUnassigned = await this.getTask(idTask);
-
-        if (taskUnassigned.assignedId !== null) {
-            throw new Error("La tarea ya está asignada a otro usuario");
-        }
-
-        await this.authorizationService.assertUserInFamily(token, taskUnassigned.familyId)
-
-        try {
-            const taskAssigned = await this.repository.assignTaskToUser(idTask, token.userId);
-            return taskAssigned;
-        } catch (err: any){
-            throw new Error("Ocurrio un error al asingar la tarea. Intente mas tarde")
-        }
-    }
-
-    async unassignTask(idTask: string, token: TokenData): Promise<Task> {
-        if (!idTask || !token){
-            throw new Error("Todos los campos son obligatorios")
-        }
-
-        const taskAssigned = await this.getTask(idTask)
-
-        if (taskAssigned.assignedId === null) {
-            throw new Error("La tarea no está asignada a ningún usuario");
-        }
-
-        await this.authorizationService.assertUserIsAdmin(token, taskAssigned.familyId)
-
-        try {
-            const taskUnassigned = await this.repository.unassignTaskFromUser(idTask)
-            return taskUnassigned
-        } catch (err: any){
-            throw new Error("Ocurrio un error al realizar la operacion. Intente mas tarde")
-        }
-    }
+export class TaskCompletionSercice extends TaskService {
 
     async completeTaskAsUser(idTask: string, token: TokenData): Promise<Task> {
         if (!idTask || !token) {
@@ -236,6 +197,51 @@ export class TaskService {
             return taskCompleted;
         } catch (err: any) {
             throw new Error("Ocurrió un error al completar la tarea. Intente más tarde");
+        }
+    }
+}
+
+export class TaskAssignmentService extends TaskService {
+
+    async autoAssignTask(idTask: string, token: TokenData): Promise<Task> {
+        if (!idTask || !token){
+            throw new Error("Todos los campos son obligatorios")
+        }
+
+        const taskUnassigned = await this.getTask(idTask);
+
+        if (taskUnassigned.assignedId !== null) {
+            throw new Error("La tarea ya está asignada a otro usuario");
+        }
+
+        await this.authorizationService.assertUserInFamily(token, taskUnassigned.familyId)
+
+        try {
+            const taskAssigned = await this.repository.assignTaskToUser(idTask, token.userId);
+            return taskAssigned;
+        } catch (err: any){
+            throw new Error("Ocurrio un error al asingar la tarea. Intente mas tarde")
+        }
+    }
+
+    async unassignTask(idTask: string, token: TokenData): Promise<Task> {
+        if (!idTask || !token){
+            throw new Error("Todos los campos son obligatorios")
+        }
+
+        const taskAssigned = await this.getTask(idTask)
+
+        if (taskAssigned.assignedId === null) {
+            throw new Error("La tarea no está asignada a ningún usuario");
+        }
+
+        await this.authorizationService.assertUserIsAdmin(token, taskAssigned.familyId)
+
+        try {
+            const taskUnassigned = await this.repository.unassignTaskFromUser(idTask)
+            return taskUnassigned
+        } catch (err: any){
+            throw new Error("Ocurrio un error al realizar la operacion. Intente mas tarde")
         }
     }
 

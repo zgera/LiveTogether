@@ -1,5 +1,6 @@
 import "dotenv/config"
 import cookieParser from 'cookie-parser';
+import http from "http";
 
 import { userRouter } from "./routes/userRouter";
 import { familyRouter } from "./routes/familyRouter";
@@ -18,6 +19,8 @@ app.use('/family', familyRouter)
 app.use('/invitation', invitationRouter)
 app.use('/task', taskRouter)
 
-app.listen(3000, () => {
+const server = http.createServer(app)
+
+server.listen(3000, () => {
   console.log(`App listening on http://localhost:3000`)
 })
