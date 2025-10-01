@@ -11,19 +11,20 @@ declare global {
   }
 }
 
-export function autenticarToken(req: Request, res: Response, next: NextFunction){
-    const token = req.cookies.access_token
+export function autenticarToken(req: Request, res: Response, next: NextFunction) {
+    const authHeader = req.headers["authorization"];
+    const token = authHeader && authHeader.split(" ")[1];
 
-    if (!token){
-        res.status(401).json({mensaje: "No autenticado"})
+    if (!token) {
+        res.status(401).json({ mensaje: "No autenticado" });
         return
     }
 
     try {
-        const decoded = authenticationService.validateToken(token)
-        req.user = decoded
-        next()
+        const decoded = authenticationService.validateToken(token);
+        req.user = decoded;
+        next();
     } catch (error) {
-        res.status(403).json({ mensaje: 'Token invalido o expirado' })
+        res.status(403).json({ mensaje: "Token inválido o expirado" });
     }
 }

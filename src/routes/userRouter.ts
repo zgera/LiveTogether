@@ -20,33 +20,28 @@ const UserService = new userService();
 export const userRouter = Router()
 
 userRouter.post("/signin", async (req: Request, res: Response) => {
-    const { username, password } = req.body
+    const { username, password } = req.body;
 
     try {
-        const user = await UserService.verifyUser(username, password)
+        const user = await UserService.verifyUser(username, password);
 
         const tokenData: TokenData = {
             userId: user.idUser,
             userName: user.username
-        }
+        };
 
-        const token = authenticationService.createToken(tokenData)
+        const token = authenticationService.createToken(tokenData);
 
-        res
-            .cookie('access_token', token, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: 'strict',
-                maxAge: 1000 * 60 * 60
-            })
-            .status(200)
-            .send({ user })
-
+        // En móvil: lo devolvés en JSON
+        res.status(200).send({
+            user,
+            token
+        });
     } catch (error) {
         const message = error instanceof Error ? error.message : 'Error inesperado al iniciar sesión';
         res.status(401).send({ error: message });
     }
-})
+});
 
 userRouter.get("/signout", async (req: Request, res: Response) => {
     try {
