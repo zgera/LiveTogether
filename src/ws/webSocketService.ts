@@ -1,6 +1,10 @@
 import { Server } from "socket.io"
 import { authenticationService } from "../services/authenticationService"
+import { FamilyService } from "../services/familyService"
 import http from "http"
+import { TokenData } from "../types/auth"
+
+const familyService = new FamilyService()
 
 export class webSocketService{
     private static io : Server
@@ -24,20 +28,26 @@ export class webSocketService{
             }
             try {
                 const payload = authenticationService.validateToken(token);
-                (socket as any).userId = payload.userId
+                (socket as any).user = payload
             } catch (err) {
                 next(new Error("Token invalido"))
             }
         })
 
-        this.io.on("connection", (socket) => {
-            const userId = (socket as any).userId
-            console.log(`Usuario conectado: ${userId}`)
+        this.io.on("connection", async (socket) => {
+            const user = (socket as any).user
+            console.log(`Usuario conectado: ${user.userId}`)
 
-            socket.join(`user:${userId}`)
+            socket.join(`user:${user.userId}`)
+
+            const familiesIDs = await familyService.getFamiliesByUser(user)
+
+            familiesIDs.forEach( family => {
+                socket.join(`family:${family.idFamily}`)
+            });
 
             socket.on("disconnect", () => {
-                console.log(`Usuario desconectado: ${userId}`)
+                console.log(`Usuario desconectado: ${user.userId}`)
             })
         })
     }
