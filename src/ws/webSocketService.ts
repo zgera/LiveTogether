@@ -51,4 +51,21 @@ export class webSocketService{
             })
         })
     }
+
+    static getIO(){
+        if (this.io === null){
+            throw new Error("No se inicio el webSocket Server")
+        }
+        return this.io
+    }
+
+    static emitPrivateMessage(idUser: string, message: string){
+        this.getIO()
+        //Completar
+    }
+
+    static emitFamilyMessage(idFamily: string, message: string){
+        this.getIO()
+        //Completar
+    }
 }

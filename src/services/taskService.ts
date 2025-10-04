@@ -4,6 +4,7 @@ import { DifficultyRepository } from "../repositories/difficultyRepository";
 import { TokenData } from "../types/auth";
 import { AuthorizationService } from "./authorizationService";
 import { FamilyService } from "./familyService";
+import { webSocketService } from "../ws/webSocketService";
 
 enum Difficulty {
     facil = 1,
@@ -203,6 +204,12 @@ export class TaskCompletionSercice extends TaskService {
 
 export class TaskAssignmentService extends TaskService {
 
+    async externAssign(idTask: string, idUser: string): Task {
+        const task = await this.repository.assignTaskToUser(idTask, idUser)
+        webSocketService.emitPrivateMessage(idUser, "Nueva tarea asignada")
+        return task
+    }    
+
     async autoAssignTask(idTask: string, token: TokenData): Promise<Task> {
         if (!idTask || !token){
             throw new Error("Todos los campos son obligatorios")
@@ -259,7 +266,7 @@ export class TaskAssignmentService extends TaskService {
         await this.authorizationService.assertUserIsAdmin(token, taskUnassigned.familyId)
 
         try {
-            const taskAssigned = await this.repository.assignTaskToUser(idTask, idUser);
+            const taskAssigned = await this.externAssign(idTask, idUser)
             return taskAssigned;
         } catch (err: any) {
             throw new Error("Ocurrió un error al asignar la tarea. Intente más tarde");
