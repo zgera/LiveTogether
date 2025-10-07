@@ -1,0 +1,10 @@
+model Notification {
+    idNotification String @id @default(cuid())
+    idUser String
+    idFamily String
+    taskCreated Boolean
+    title String
+    idTask String
+    createdAt DateTime @default(now())
+    seen Boolean @default(false)
+}

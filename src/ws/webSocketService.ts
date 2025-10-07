@@ -59,13 +59,13 @@ export class webSocketService{
         return this.io
     }
 
-    static emitPrivateMessage(idUser: string, message: string){
+    static emitPrivateMessage(idUser: string, payload: string){
         this.getIO()
-        //Completar
+        this.io.to(`user:${idUser}`).emit("notification", payload);
     }
 
-    static emitFamilyMessage(idFamily: string, message: string){
+    static emitFamilyMessage(idFamily: string, payload: string){
         this.getIO()
-        //Completar
+        this.io.to(`family:${idFamily}`).emit("notification", payload);
     }
 }

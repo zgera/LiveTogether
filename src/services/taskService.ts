@@ -204,7 +204,7 @@ export class TaskCompletionSercice extends TaskService {
 
 export class TaskAssignmentService extends TaskService {
 
-    async externAssign(idTask: string, idUser: string): Task {
+    async externAssign(idTask: string, idUser: string): Promise<Task> {
         const task = await this.repository.assignTaskToUser(idTask, idUser)
         webSocketService.emitPrivateMessage(idUser, "Nueva tarea asignada")
         return task
@@ -321,7 +321,7 @@ export class TaskAssignmentService extends TaskService {
                     break
                 }
 
-                await this.repository.assignTaskToUser(task.idTask, user.idUser)  
+                await this.externAssign(task.idTask, user.idUser)
             }
 
             index = (index + 1) % members.length
