@@ -12,7 +12,7 @@ endOfDay.setHours(23, 59, 59, 999);
 
 export class TaskRepository {
 
-    async createTask(name:string, description:string, familyId:string, creatorId:string, idDifficulty:number): Promise<Task>  {
+    static async createTask(name:string, description:string, familyId:string, creatorId:string, idDifficulty:number): Promise<Task>  {
     
         return await db.task.create({
             data: {
@@ -26,11 +26,11 @@ export class TaskRepository {
             }})
     }   
 
-    async getTask(idTask: string): Promise<Task | null>{
+    static async getTask(idTask: string): Promise<Task | null>{
         return await db.task.findUnique({ where: { idTask } })
     }
 
-    async getTaskUnassigned(familyId: string): Promise<Task[]> {
+    static async getTaskUnassigned(familyId: string): Promise<Task[]> {
         return await db.task.findMany({
             where: {
                 familyId,
@@ -43,15 +43,15 @@ export class TaskRepository {
     }
 
 
-    async getTaskAssignedUncompletedByUser(familyId: string, userId: string): Promise<Task[]> {
+    static async getTaskAssignedUncompletedByUser(familyId: string, userId: string): Promise<Task[]> {
         return await db.task.findMany({ where: { familyId, assignedId: userId, completedByUser: false } });
     }
 
-    async getTaskUnderReviewByUser(familyId: string, userId: string): Promise<Task[]> {
+    static async getTaskUnderReviewByUser(familyId: string, userId: string): Promise<Task[]> {
         return await db.task.findMany({ where: { familyId, assignedId: userId, completedByUser: true, completedByAdmin: false } });
     }
 
-    async getTaskAssignedUncompleted(familyId: string): Promise<Task[]> {
+    static async getTaskAssignedUncompleted(familyId: string): Promise<Task[]> {
         return await db.task.findMany({ 
             where: { 
                 familyId,
@@ -65,7 +65,7 @@ export class TaskRepository {
         });
     }
 
-    async getTasksUnderReview(familyId: string): Promise<Task[]>  {
+    static async getTasksUnderReview(familyId: string): Promise<Task[]>  {
         return await db.task.findMany({ 
             where: { 
                 familyId, 
@@ -79,23 +79,23 @@ export class TaskRepository {
         });
     }
 
-    async getTaskCompletedByAdmin(familyId: string): Promise<Task[]> {
+    static async getTaskCompletedByAdmin(familyId: string): Promise<Task[]> {
         return await db.task.findMany({ where: { familyId, completedByUser: true } });
     }
 
-    async getTasksCompletedByFamily(familyId: string): Promise<Task[]>  {
+    static async getTasksCompletedByFamily(familyId: string): Promise<Task[]>  {
         return await db.task.findMany({ where: { familyId, completedByAdmin: true } });
     }
 
-    async getTasksAssignedByFamilyUser(familyId: string, userId: string): Promise<Task[]>  {
+    static async getTasksAssignedByFamilyUser(familyId: string, userId: string): Promise<Task[]>  {
         return await db.task.findMany({ where: { familyId, assignedId: userId } });
     }
 
-    async getUnassignedTasks(familyId: string): Promise<Task[]> {
+    static async getUnassignedTasks(familyId: string): Promise<Task[]> {
         return await db.task.findMany({ where: { familyId, assignedId: null } });
     }
 
-    async markTaskAsCompletedByUser(idTask: string): Promise<Task> {
+    static async markTaskAsCompletedByUser(idTask: string): Promise<Task> {
         return await db.task.update({
             where: { idTask },
             data: {
@@ -103,7 +103,7 @@ export class TaskRepository {
             }})
     }
 
-    async markTaskAsUncomplete(idTask: string): Promise<Task> {
+    static async markTaskAsUncomplete(idTask: string): Promise<Task> {
         return await db.task.update({
             where: { idTask },
             data: {
@@ -111,7 +111,7 @@ export class TaskRepository {
             }})
     }
 
-    async markTaskAsCompletedByAdmin(idTask: string): Promise<Task> {
+    static async markTaskAsCompletedByAdmin(idTask: string): Promise<Task> {
         return await db.task.update({
             where: {idTask},
             data: {
@@ -120,7 +120,7 @@ export class TaskRepository {
         })
     }
 
-    async assignTaskToUser(idTask: string, idUser: string): Promise<Task> {
+    static async assignTaskToUser(idTask: string, idUser: string): Promise<Task> {
         return await db.task.update({
             where: { idTask },
             data: {
@@ -128,7 +128,7 @@ export class TaskRepository {
             }})
     }
 
-    async unassignTaskFromUser(idTask: string): Promise<Task> {
+    static async unassignTaskFromUser(idTask: string): Promise<Task> {
         return await db.task.update({
             where: { idTask },
             data: {
@@ -136,7 +136,7 @@ export class TaskRepository {
             }})
     }
 
-    async changeTaskDifficulty(idTask: string, idDifficulty: number): Promise<Task> {
+    static async changeTaskDifficulty(idTask: string, idDifficulty: number): Promise<Task> {
         return await db.task.update({
             where: { idTask },
             data: {
@@ -144,11 +144,11 @@ export class TaskRepository {
             }})
     }
 
-    async getTasksByDifficulty(familyId: string, idDifficulty: number): Promise<Task[]> {
+    static async getTasksByDifficulty(familyId: string, idDifficulty: number): Promise<Task[]> {
         return await db.task.findMany({ where: { familyId, idDifficulty } });
     }
     
-    async deleteTask(idTask:string): Promise<Task> {
+    static async deleteTask(idTask:string): Promise<Task> {
         return await db.task.delete({ where: { idTask } })
     }
 }

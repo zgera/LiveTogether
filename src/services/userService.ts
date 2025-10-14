@@ -22,10 +22,7 @@ interface CreateUserBody {
 // clase UserValidator abajo al fondo
 
 export class userService {
-    
-    // Repositorio
-    private repository = new UserRepository  //Manera corta, cuando se compila es como si estuviera en el constructor de la clase
-    
+
     private userValidator = new UserValidator
 
     private createUserSafe(user: User): UserSafe {
@@ -34,11 +31,11 @@ export class userService {
     }
 
     async createUser(userData: CreateUserBody): Promise<UserSafe>{
-        await this.userValidator.validate(userData, this.repository)
+        await this.userValidator.validate(userData)
         const hashedPassword = await bcrypt.hash(userData.password, saltRounds)
 
         try {
-            const user = await this.repository.createUser(userData.firstName, userData.lastName, userData.username, hashedPassword)
+            const user = await UserRepository.createUser(userData.firstName, userData.lastName, userData.username, hashedPassword)
             return this.createUserSafe(user)
         } catch (err: any){
             throw new Error("Ocurrio un error al crear el usuario. Intente mas tarde")
@@ -66,7 +63,7 @@ export class userService {
             throw new Error("El id del usuario es obligatorio")
         }
 
-        const user = await this.repository.getUser(idUser)
+        const user = await UserRepository.getUser(idUser)
 
         if (!user) {
             throw new Error("Usuario no encontrado")
@@ -85,7 +82,7 @@ export class userService {
             throw new Error("El id del usuario es obligatorio")
         }
 
-        const user = await this.repository.findByUsername(username)
+        const user = await UserRepository.findByUsername(username)
 
         if (!user) {
             throw new Error("Usuario no encontrado")
@@ -98,17 +95,17 @@ export class userService {
 
 
 class UserValidator { 
-    async validate(userData:CreateUserBody, repository: UserRepository): Promise<boolean> {
-        await this.validateUsername(userData.username, repository)
+    async validate(userData:CreateUserBody): Promise<boolean> {
+        await this.validateUsername(userData.username)
         this.validatePassword(userData.password)
         this.validateName(userData.firstName)
         this.validateName(userData.lastName)
         return true;
     }
 
-    private async validateUsername(username: string, repository:UserRepository): Promise<void> {
+    private async validateUsername(username: string): Promise<void> {
         this.validateName(username)
-        let existing = await repository.findByUsername(username)
+        let existing = await UserRepository.findByUsername(username)
         if (existing){
             throw new Error("Ese nombre ya esta ocupado.")
         }

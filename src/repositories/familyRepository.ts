@@ -4,7 +4,7 @@ import { db } from "../db/db";
 
 export class FamilyRepository {
 
-    async createFamily(name: string): Promise<Family> {
+    static async createFamily(name: string): Promise<Family> {
         return await db.family.create({
             data: {
                 name
@@ -12,7 +12,7 @@ export class FamilyRepository {
         })
     }
 
-    async changeName(idFamily:string, name: string): Promise<Family> {
+    static async changeName(idFamily:string, name: string): Promise<Family> {
         return await db.family.update({
             where: { idFamily},
             data: {
@@ -21,11 +21,11 @@ export class FamilyRepository {
         })
     }
 
-    async deleteFamily(idFamily: string): Promise<Family> {
+    static async deleteFamily(idFamily: string): Promise<Family> {
         return await db.family.delete({ where: { idFamily }})
     }
 
-    async getFamily(idFamily: string): Promise<Family | null> {
+    static async getFamily(idFamily: string): Promise<Family | null> {
         return await db.family.findUnique({ where: { idFamily }});
     }
 }

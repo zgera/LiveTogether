@@ -1,10 +1,11 @@
-import { Task, User, FamilyUser } from "@prisma/client";
+import { Task } from "@prisma/client";
+import { FamilyUserRepository } from "../repositories/familyUserRepository";
 import { TaskRepository } from "../repositories/taskRepository";
 import { DifficultyRepository } from "../repositories/difficultyRepository";
 import { TokenData } from "../types/auth";
 import { AuthorizationService } from "./authorizationService";
 import { FamilyService } from "./familyService";
-import { webSocketService } from "../ws/webSocketService";
+import { notificationService } from "./notificationService";
 
 enum Difficulty {
     facil = 1,
@@ -14,14 +15,11 @@ enum Difficulty {
 
 
 export class TaskService {
-    
-    // Repositorio
-    protected repository = new TaskRepository();   
-    protected difficultyRepository = new DifficultyRepository();
 
     // Servicios
     protected familyService = new FamilyService();
     protected authorizationService = new AuthorizationService();
+    protected NotificationService = new notificationService();
 
     async createTask(name: string, description: string, familyId: string, difficulty: number, token: TokenData): Promise<Task> {
         if (!name || !description || !familyId || !difficulty || !token) {
@@ -34,19 +32,18 @@ export class TaskService {
 
         await this.authorizationService.assertUserInFamily(token, familyId)
 
-        try {
-            const task = await this.repository.createTask(name, description, familyId, token.userId, difficulty);
-            return task;
-        } catch (err: any) {
-            throw new Error("Ocurrió un error al crear la tarea. Intente más tarde");
-        }
+        const task = await TaskRepository.createTask(name, description, familyId, token.userId, difficulty);
+
+        await this.NotificationService.createNotification(familyId, token.userId, true, name, task.idTask);
+
+        return task;
     }
 
     async getTask(idTask: string): Promise<Task> {
         if (!idTask){
             throw new Error("El id de la tarea es obligatorio");
         }
-        const task = await this.repository.getTask(idTask);
+        const task = await TaskRepository.getTask(idTask);
         if (!task) {
             throw new Error("Tarea inexistente");
         }
@@ -60,12 +57,9 @@ export class TaskService {
 
         await this.authorizationService.assertUserInFamily(token, familyId)
 
-        try {
-            const tasks = await this.repository.getTaskUnassigned(familyId);
-            return tasks;
-        } catch (err: any) {
-            throw new Error("Ocurrió un error al obtener las tareas. Intente más tarde");
-        }
+        const tasks = await TaskRepository.getTaskUnassigned(familyId);
+
+        return tasks;
     }
 
     async getTasksAssignedUncompletedByUser(familyId: string, token: TokenData): Promise<Task[]> {
@@ -75,12 +69,9 @@ export class TaskService {
 
         await this.authorizationService.assertUserInFamily(token, familyId)
 
-        try {
-            const tasks = await this.repository.getTaskAssignedUncompletedByUser(familyId, token.userId);
-            return tasks;
-        } catch (err: any) {
-            throw new Error("Ocurrió un error al obtener las tareas. Intente más tarde");
-        }
+        const tasks = await TaskRepository.getTaskAssignedUncompletedByUser(familyId, token.userId);
+
+        return tasks;
     }
 
     async getTasksUnderReviewByUser(familyId: string, token: TokenData): Promise<Task[]> {
@@ -90,12 +81,9 @@ export class TaskService {
 
         await this.authorizationService.assertUserInFamily(token, familyId)
 
-        try {
-            const tasks = await this.repository.getTaskUnderReviewByUser(familyId, token.userId);
-            return tasks;
-        } catch (err: any) {
-            throw new Error("Ocurrió un error al obtener las tareas. Intente más tarde");
-        }
+        const tasks = await TaskRepository.getTaskUnderReviewByUser(familyId, token.userId);
+
+        return tasks;
     }
 
     async getTasksAssignedUncompleted(familyId: string, token: TokenData): Promise<Task[]> {
@@ -105,12 +93,9 @@ export class TaskService {
 
         await this.authorizationService.assertUserIsAdmin(token, familyId)
 
-        try {
-            const tasks = await this.repository.getTaskAssignedUncompleted(familyId);
-            return tasks;
-        } catch (err: any) {
-            throw new Error("Ocurrió un error al obtener las tareas. Intente más tarde");
-        }
+        const tasks = await TaskRepository.getTaskAssignedUncompleted(familyId);
+
+        return tasks;
     }
 
     async getTasksUnderReview(familyId: string, token: TokenData): Promise<Task[]> {
@@ -120,16 +105,13 @@ export class TaskService {
         
         await this.authorizationService.assertUserIsAdmin(token, familyId)
 
-        try {
-            const tasks = await this.repository.getTasksUnderReview(familyId);
-            return tasks;
-        } catch (err: any) {
-            throw new Error("Ocurrió un error al obtener las tareas. Intente más tarde");
-        }
+        const tasks = await TaskRepository.getTasksUnderReview(familyId);
+        
+        return tasks;
     }
 }
 
-export class TaskCompletionSercice extends TaskService {
+export class TaskCompletionService extends TaskService {
 
     async completeTaskAsUser(idTask: string, token: TokenData): Promise<Task> {
         if (!idTask || !token) {
@@ -148,35 +130,33 @@ export class TaskCompletionSercice extends TaskService {
             throw new Error("La tarea ya ha sido completada por el usuario");
         }
 
-        try {
-            const taskCompleted = await this.repository.markTaskAsCompletedByUser(idTask);
-            return taskCompleted;
-        } catch (err: any) {
-            throw new Error("Ocurrió un error al completar la tarea. Intente más tarde");
-        }
+        const taskCompleted = await TaskRepository.markTaskAsCompletedByUser(idTask);
+
+        return taskCompleted;
     }
 
     private async getDifficultyPoints(difficultyId: number): Promise<number> {
         if (!difficultyId) {
             throw new Error("El id de dificultad es obligatorio");
         }
-        try {
-            const difficulty = await this.difficultyRepository.getDifficultyById(difficultyId);
-            if (!difficulty) {
-                throw new Error("Dificultad no encontrada");
-            }
-            return difficulty.points;
-        } catch (err: any) {
-            throw new Error("Ocurrió un error al obtener la dificultad. Intente más tarde");
+
+        const difficulty = await DifficultyRepository.getDifficultyById(difficultyId);
+
+        if (!difficulty) {
+            throw new Error("Dificultad no encontrada");
         }
+
+        return difficulty.points;
     }
 
     private async consumeTaskPoints(task: Task): Promise<void> {
         const difficultyPoints = await this.getDifficultyPoints(task.idDifficulty);
+
         if (task.assignedId === null) {
             throw new Error("La tarea no está asignada a ningún usuario");
         }
         await this.familyService.addPointsToMemberInFamily(task.familyId, task.assignedId, difficultyPoints);
+
     }
 
     async completeTaskAsAdmin(idTask: string, token: TokenData): Promise<Task> {
@@ -192,21 +172,19 @@ export class TaskCompletionSercice extends TaskService {
             throw new Error("La tarea ya ha sido completada por el administrador");
         }
 
-        try {
-            const taskCompleted = await this.repository.markTaskAsCompletedByAdmin(idTask);
-            await this.consumeTaskPoints(taskCompleted);
-            return taskCompleted;
-        } catch (err: any) {
-            throw new Error("Ocurrió un error al completar la tarea. Intente más tarde");
-        }
+        const taskCompleted = await TaskRepository.markTaskAsCompletedByAdmin(idTask);
+
+        await this.consumeTaskPoints(taskCompleted);
+
+        return taskCompleted;
     }
 }
 
 export class TaskAssignmentService extends TaskService {
 
     async externAssign(idTask: string, idUser: string): Promise<Task> {
-        const task = await this.repository.assignTaskToUser(idTask, idUser)
-        webSocketService.emitPrivateMessage(idUser, "Nueva tarea asignada")
+        const task = await TaskRepository.assignTaskToUser(idTask, idUser)
+        await this.NotificationService.createNotification(task.familyId, idUser, false, task.name, task.idTask)
         return task
     }    
 
@@ -223,12 +201,9 @@ export class TaskAssignmentService extends TaskService {
 
         await this.authorizationService.assertUserInFamily(token, taskUnassigned.familyId)
 
-        try {
-            const taskAssigned = await this.repository.assignTaskToUser(idTask, token.userId);
-            return taskAssigned;
-        } catch (err: any){
-            throw new Error("Ocurrio un error al asingar la tarea. Intente mas tarde")
-        }
+        const taskAssigned = await TaskRepository.assignTaskToUser(idTask, token.userId);
+
+        return taskAssigned;
     }
 
     async unassignTask(idTask: string, token: TokenData): Promise<Task> {
@@ -244,12 +219,9 @@ export class TaskAssignmentService extends TaskService {
 
         await this.authorizationService.assertUserIsAdmin(token, taskAssigned.familyId)
 
-        try {
-            const taskUnassigned = await this.repository.unassignTaskFromUser(idTask)
-            return taskUnassigned
-        } catch (err: any){
-            throw new Error("Ocurrio un error al realizar la operacion. Intente mas tarde")
-        }
+        const taskUnassigned = await TaskRepository.unassignTaskFromUser(idTask)
+
+        return taskUnassigned
     }
 
     async assingTaskToUser(idTask: string, idUser: string, token: TokenData): Promise<Task> {
@@ -265,12 +237,9 @@ export class TaskAssignmentService extends TaskService {
 
         await this.authorizationService.assertUserIsAdmin(token, taskUnassigned.familyId)
 
-        try {
-            const taskAssigned = await this.externAssign(idTask, idUser)
-            return taskAssigned;
-        } catch (err: any) {
-            throw new Error("Ocurrió un error al asignar la tarea. Intente más tarde");
-        }
+        const taskAssigned = await this.externAssign(idTask, idUser)
+
+        return taskAssigned;
     }
 
     extraTaskPerUser(user: {assigned: boolean, idFamilyUser: string, idUser: string, idFamily: string, idRole: number, points: number}, membersRound: {assigned: boolean, idFamilyUser: string, idUser: string, idFamily: string, idRole: number, points: number}[]): number{
@@ -300,12 +269,12 @@ export class TaskAssignmentService extends TaskService {
         await this.familyService.getFamily(idFamily) //Verifica que exista la familia
         await this.authorizationService.assertUserIsAdmin(token, idFamily)
 
-        const members = await this.familyService.getFamilyMembers(idFamily)
+        const members = await FamilyUserRepository.getFamilyMembers(idFamily)
         const membersRound = members.map(member => ({
             ...member,
             assigned: false
             }));
-        const tasks = await this.repository.getTaskUnassigned(idFamily)
+        const tasks = await TaskRepository.getTaskUnassigned(idFamily)
 
         let index: number = 0
 
