@@ -24,6 +24,16 @@ export class InvitationRepository {
         });
     }
 
+    static async getInvitationByUserFamily(idUser: string, idFamily: string): Promise<Invitation | null>{
+        const invitation = await db.invitation.findFirst({
+            where: {
+                idUserInvited: idUser,
+                idFamily: idFamily
+            }
+        });
+        return invitation;
+    }
+
     static async getInvitationsSentToUserByUserId(idUser: string): Promise<Invitation[]> { 
         let invitations = await db.invitation.findMany({
             where: {

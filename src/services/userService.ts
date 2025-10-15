@@ -77,9 +77,14 @@ export class userService {
         return this.createUserSafe(user);
     }
 
+    async getUserByUsername(username: string): Promise<UserSafe> {
+        const user = await this.getUserCompleteByUsername(username)
+        return this.createUserSafe(user)
+    }
+
     private async getUserCompleteByUsername(username: string): Promise<User> {
         if (!username) {
-            throw new Error("El id del usuario es obligatorio")
+            throw new Error("El username del usuario es obligatorio")
         }
 
         const user = await UserRepository.findByUsername(username)

@@ -18,9 +18,15 @@ export class FamilyService {
             throw new Error("Todos los campos son obligatorios");
         }
 
+        console.log(token.userId)
+
         const family = await FamilyRepository.createFamily(name);
 
+        console.log(family.idFamily)
+
         await this.joinFamily(token.userId, family.idFamily, 2); // El rol 2 es de admin
+
+        //await FamilyUserRepository.userJoinFamily(token.userId, family.idFamily, 2);
 
         return family;
     }

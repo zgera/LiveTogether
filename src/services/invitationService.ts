@@ -13,20 +13,32 @@ export class InvitationService {
     private userService = new userService();
     private familyService = new FamilyService();
 
-    async createInvitation(idFamily: string, idUserInvited: string, token: TokenData): Promise<Invitation> {
-        if (!idFamily || !idUserInvited || !token) {
+    async existsInvitation(idUser: string, idFamily: string): Promise<boolean> {
+        const invitation = await InvitationRepository.getInvitationByUserFamily(idUser, idFamily);
+        if (!invitation) {
+            return false
+        }
+        return true
+    }
+
+    async createInvitation(idFamily: string, usernameInvited: string, token: TokenData): Promise<Invitation> {
+        if (!idFamily || !usernameInvited || !token) {
             throw new Error("Todos los campos son obligatorios");
         }
 
         await this.authorizationService.assertUserIsAdmin(token, idFamily)
 
-        await this.userService.getUser(idUserInvited); // Verifica si el usuario existe
+        const user = await this.userService.getUserByUsername(usernameInvited); // Verifica si el usuario existe
 
         await this.familyService.getFamily(idFamily); // Verifica si la familia existe
 
-        const invitation = await InvitationRepository.createInvitation(idFamily, idUserInvited, token.userId);
+        if (await this.existsInvitation(user.idUser, idFamily)) {
+            throw new Error("Ya existe una invitación pendiente para este usuario en la familia");
+        }
 
-        webSocketService.emitPrivateMessage(idUserInvited, {type: "Invitation"})
+        const invitation = await InvitationRepository.createInvitation(idFamily, user.idUser, token.userId);
+
+        webSocketService.emitPrivateMessage(user.idUser, {type: "Invitation"})
 
         return invitation;
     }

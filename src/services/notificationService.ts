@@ -5,11 +5,11 @@ import { FamilyUserRepository } from "../repositories/familyUserRepository";
 import { webSocketService } from "../ws/webSocketService"
 
 
-interface sendNotificationStrategy{
+interface createNotificationStrategy{
     send(idFamily: string, idUser: string, taskCreated: boolean, title: string, idTask: string): Promise<void>;
 }
 
-class sendNewTaskStrategy implements sendNotificationStrategy{
+class createNewTaskStrategy implements createNotificationStrategy{
     async send(idFamily: string, idUser: string, taskCreated: boolean, title: string, idTask: string): Promise<void> {
 
         const familyMembers = await FamilyUserRepository.getFamilyMembers(idFamily)
@@ -22,7 +22,7 @@ class sendNewTaskStrategy implements sendNotificationStrategy{
     }
 }
 
-class sendAssignedTaskStrategy implements sendNotificationStrategy{
+class createAssignedTaskStrategy implements createNotificationStrategy{
     async send(idFamily: string, idUser: string, taskCreated: boolean, title: string, idTask: string): Promise<void> {
 
         notificationRepository.createNotification(idFamily, idUser, taskCreated, title, idTask)
@@ -36,7 +36,7 @@ export class notificationService{
 
     async createNotification(idFamily: string, idUser: string, taskCreated: boolean, title: string, idTask: string): Promise<void> {
 
-        const strategy : sendNotificationStrategy = taskCreated ? new sendNewTaskStrategy() : new sendAssignedTaskStrategy()
+        const strategy : createNotificationStrategy = taskCreated ? new createNewTaskStrategy() : new createAssignedTaskStrategy()
         
         await strategy.send(idFamily, idUser, taskCreated, title, idTask)
     }

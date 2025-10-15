@@ -132,6 +132,8 @@ export class TaskCompletionService extends TaskService {
 
         const taskCompleted = await TaskRepository.markTaskAsCompletedByUser(idTask);
 
+        
+
         return taskCompleted;
     }
 
