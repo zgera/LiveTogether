@@ -4,34 +4,43 @@ import { AuthorizationService } from "./authorizationService";
 import { userService } from "./userService";
 import { FamilyService } from "./familyService";
 import { Invitation } from "@prisma/client";
+import { webSocketService } from "../ws/webSocketService";
 
 export class InvitationService {
-
-    //Repostiorio
-    private repository = new InvitationRepository();
 
     // Servicios
     private authorizationService = new AuthorizationService();
     private userService = new userService();
     private familyService = new FamilyService();
 
-    async createInvitation(idFamily: string, idUserInvited: string, token: TokenData) {
-        if (!idFamily || !idUserInvited || !token) {
+    async existsInvitation(idUser: string, idFamily: string): Promise<boolean> {
+        const invitation = await InvitationRepository.getInvitationByUserFamily(idUser, idFamily);
+        if (!invitation) {
+            return false
+        }
+        return true
+    }
+
+    async createInvitation(idFamily: string, usernameInvited: string, token: TokenData): Promise<Invitation> {
+        if (!idFamily || !usernameInvited || !token) {
             throw new Error("Todos los campos son obligatorios");
         }
 
         await this.authorizationService.assertUserIsAdmin(token, idFamily)
 
-        await this.userService.getUser(idUserInvited); // Verifica si el usuario existe
+        const user = await this.userService.getUserByUsername(usernameInvited); // Verifica si el usuario existe
 
         await this.familyService.getFamily(idFamily); // Verifica si la familia existe
 
-        try {
-            const invitation = await this.repository.createInvitation(idFamily, idUserInvited, token.userId);
-            return invitation;
-        } catch (err: any) {
-            throw new Error("Ocurrió un error al crear la invitación. Intente más tarde");
+        if (await this.existsInvitation(user.idUser, idFamily)) {
+            throw new Error("Ya existe una invitación pendiente para este usuario en la familia");
         }
+
+        const invitation = await InvitationRepository.createInvitation(idFamily, user.idUser, token.userId);
+
+        webSocketService.emitPrivateMessage(user.idUser, {type: "Invitation"})
+
+        return invitation;
     }
 
 
@@ -40,7 +49,7 @@ export class InvitationService {
             throw new Error("Todos los campos son obligatorios");
         }
 
-        const invitation = await this.repository.getInvitation(idInvitation);
+        const invitation = await InvitationRepository.getInvitation(idInvitation);
 
         if (!invitation) {
             throw new Error("Invitación inexistente");
@@ -50,12 +59,25 @@ export class InvitationService {
     }
 
     async getInvitationsSentToUser(token: TokenData): Promise<Invitation[]> {
-        try {
-            const invitations = await this.repository.getInvitationsSentToUserByUserId(token.userId);
-            return invitations;
-        } catch (err: any) {
-            throw new Error("Ocurrió un error al obtener las invitaciones. Intente más tarde");
+        if (!token) {
+            throw new Error("El token es obligatorio");
         }
+
+        const invitations = await InvitationRepository.getInvitationsSentToUserByUserId(token.userId);
+
+        await InvitationRepository.markInvitationsAsSeen(token.userId);
+
+        return invitations;
+    }
+
+    async getUnseenInvitationsCount(token: TokenData): Promise<number> {
+        if (!token) {
+            throw new Error("El token es obligatorio");
+        }
+
+        const count = await InvitationRepository.getUnseenInvitationsCount(token.userId);
+        
+        return count;
     }
 
     async getInvitationsSentFromFamily(idFamily: string, token: TokenData): Promise<Invitation[]> {
@@ -65,12 +87,9 @@ export class InvitationService {
 
         await this.authorizationService.assertUserIsAdmin(token, idFamily)
 
-        try {
-            const invitations = await this.repository.getInvitationsSendedFromFamily(idFamily);
-            return invitations;
-        } catch (err: any) {
-            throw new Error("Ocurrió un error al obtener las invitaciones. Intente más tarde");
-        }
+        const invitations = await InvitationRepository.getInvitationsSentFromFamily(idFamily);
+
+        return invitations;
     }
 
 
@@ -85,13 +104,11 @@ export class InvitationService {
             throw new Error("El usuario no es el destinatario de la invitación");
         }
 
-        try {
-            const updatedInvitation = await this.repository.acceptInvitation(idInvitation);
-            await this.familyService.joinFamily(token.userId, invitation.idFamily, 1); // El rol 1 es de miembro
-            return updatedInvitation;
-        } catch (err: any) {
-            throw new Error("Ocurrió un error al aceptar la invitación. Intente más tarde");
-        }
+        const updatedInvitation = await InvitationRepository.acceptInvitation(idInvitation);
+
+        await this.familyService.joinFamily(token.userId, invitation.idFamily, 1); // El rol 1 es de miembro
+
+        return updatedInvitation;
     }
 
     async rejectInvitation(idInvitation: string, token: TokenData): Promise<Invitation> {
@@ -105,11 +122,8 @@ export class InvitationService {
             throw new Error("El usuario no es el destinatario de la invitación");
         }
 
-        try {
-            const rejectedInvitation = await this.repository.rejectInvitation(idInvitation);
-            return rejectedInvitation;
-        } catch (err: any) {
-            throw new Error("Ocurrió un error al rechazar la invitación. Intente más tarde");
-        }
+        const rejectedInvitation = await InvitationRepository.rejectInvitation(idInvitation);
+        
+        return rejectedInvitation;
     }
 }

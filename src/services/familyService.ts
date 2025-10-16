@@ -9,10 +9,6 @@ import { TokenData } from "../types/auth";
 
 export class FamilyService {
 
-    // Repositorios
-    private repository = new FamilyRepository();
-    private familyUserRepository = new FamilyUserRepository();
-
     // Servicios
     private authorizationService = new AuthorizationService();
     private userService = new userService();
@@ -22,13 +18,17 @@ export class FamilyService {
             throw new Error("Todos los campos son obligatorios");
         }
 
-        try {
-            const family = await this.repository.createFamily(name);
-            await this.joinFamily(token.userId, family.idFamily, 2); // El rol 2 es de admin
-            return family;
-        } catch (err: any) {
-            throw new Error("Ocurrió un error al crear la familia. Intente más tarde");
-        }
+        console.log(token.userId)
+
+        const family = await FamilyRepository.createFamily(name);
+
+        console.log(family.idFamily)
+
+        await this.joinFamily(token.userId, family.idFamily, 2); // El rol 2 es de admin
+
+        //await FamilyUserRepository.userJoinFamily(token.userId, family.idFamily, 2);
+
+        return family;
     }
 
     async getFamily(idFamily: string): Promise<Family> {
@@ -36,7 +36,7 @@ export class FamilyService {
             throw new Error("El id de la familia es obligatorio");
         }
 
-        const familia = await this.repository.getFamily(idFamily);
+        const familia = await FamilyRepository.getFamily(idFamily);
         
         if (!familia) {
             throw new Error("No se encontró la familia con el id proporcionado");
@@ -45,7 +45,7 @@ export class FamilyService {
         return familia;
     }
 
-    async getFamiliesByIDs(familiesIDs: {idFamily: string}[]): Promise<Family[]> {
+    private async getFamiliesByIDs(familiesIDs: {idFamily: string}[]): Promise<Family[]> {
 
         const families: Family[] = await Promise.all(
             familiesIDs.map(async (family) => {
@@ -62,18 +62,14 @@ export class FamilyService {
             throw new Error("El token es obligatorio");
         }
 
-        const familiesIDs = await this.familyUserRepository.getFamiliesByUser(token.userId);
+        const familiesIDs = await FamilyUserRepository.getFamiliesByUser(token.userId);
 
         const families = await this.getFamiliesByIDs(familiesIDs)
 
         return families;
     }
 
-    async getFamilyMembers(idFamily: string): Promise<FamilyUser[]>{
-        return await this.familyUserRepository.getFamilyMembers(idFamily)
-    }
-
-    async getUsersByIDs(membersIDs: {idUser: string}[]): Promise<UserSafe[]> {
+    private async getUsersByIDs(membersIDs: {idUser: string}[]): Promise<UserSafe[]> {
 
         const members: UserSafe[] = await Promise.all(
             membersIDs.map(async (member) => {
@@ -94,7 +90,7 @@ export class FamilyService {
 
         await this.authorizationService.assertUserInFamily(token, idFamily)
 
-        const membersIDs = await this.getFamilyMembers(idFamily)
+        const membersIDs = await FamilyUserRepository.getFamilyMembers(idFamily);
         
         const members = await this.getUsersByIDs(membersIDs)
 
@@ -105,22 +101,16 @@ export class FamilyService {
         if (!idFamily || !idUser || !idRol) {
             throw new Error("Todos los campos son obligatorios");
         }
-        try {
-            await this.familyUserRepository.userJoinFamily(idUser, idFamily, idRol);
-        } catch (err: any) {
-            throw new Error("Ocurrió un error al unirse a la familia. Intente más tarde");
-        }
+
+        await FamilyUserRepository.userJoinFamily(idUser, idFamily, idRol);
     }
 
     async addPointsToMemberInFamily(idFamily: string, idUser: string, points: number){
         if (!idFamily || !idUser || !points) {
             throw new Error("Todos los campos son obligatorios");
         }
-        try {
-            await this.familyUserRepository.addPointsToMemberInFamily(idFamily, idUser, points);
-        } catch (err: any) {
-            throw new Error("Ocurrió un error al agregar puntos al miembro de la familia. Intente más tarde");
-        }
+        
+        await FamilyUserRepository.addPointsToMemberInFamily(idFamily, idUser, points);
     }
 
 
@@ -131,6 +121,6 @@ export class FamilyService {
 
         await this.authorizationService.assertUserIsAdmin(token, idFamily)
 
-        return await this.repository.deleteFamily(idFamily);
+        return await FamilyRepository.deleteFamily(idFamily);
     }
 }

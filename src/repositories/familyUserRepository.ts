@@ -5,7 +5,7 @@ import { db } from "../db/db";
 
 export class FamilyUserRepository {
 
-    async userJoinFamily(idUser:string, idFamily: string, idRole: number): Promise<FamilyUser> {
+    static async userJoinFamily(idUser:string, idFamily: string, idRole: number): Promise<FamilyUser> {
         return await db.familyUser.create({
             data: {
                 idUser,
@@ -16,7 +16,7 @@ export class FamilyUserRepository {
         })
     }
 
-    async getFamilyUserRole(idUser: string, idFamily: string): Promise<number | null> {
+    static async getFamilyUserRole(idUser: string, idFamily: string): Promise<number | null> {
         const result = await db.familyUser.findFirst({
             where: {
                 idUser,
@@ -29,7 +29,7 @@ export class FamilyUserRepository {
         return result?.idRole ?? null;
     }
 
-    async getFamilyUserId(idUser: string, idFamily: string): Promise<string | null> {
+    static async getFamilyUserId(idUser: string, idFamily: string): Promise<string | null> {
         const result = await db.familyUser.findFirst({
             where: {
                 idUser,
@@ -43,7 +43,7 @@ export class FamilyUserRepository {
         return result?.idFamilyUser ?? null;
     }
 
-    async userLeaveFamily(idUser: string, idFamily:string): Promise<FamilyUser | null> {
+    static async userLeaveFamily(idUser: string, idFamily:string): Promise<FamilyUser | null> {
         const idFamilyUser = await this.getFamilyUserId(idUser, idFamily);
         if (idFamilyUser) {
             return await db.familyUser.delete({
@@ -54,7 +54,7 @@ export class FamilyUserRepository {
         return null;
     }
 
-    async getFamiliesByUser(idUser: string): Promise<{idFamily: string}[]> {
+    static async getFamiliesByUser(idUser: string): Promise<{idFamily: string}[]> {
         return await db.familyUser.findMany({
             where: {
                 idUser
@@ -65,7 +65,7 @@ export class FamilyUserRepository {
         })
     }
 
-    async getFamilyMembers(idFamily: string): Promise<FamilyUser[]> {
+    static async getFamilyMembers(idFamily: string): Promise<FamilyUser[]> {
         return await db.familyUser.findMany({
             where: {
                 idFamily
@@ -76,7 +76,7 @@ export class FamilyUserRepository {
         })  
     }
 
-    async getFamilyMembersByRole(idFamily: string, idRole:number): Promise<{idUser: string}[]> {
+    static async getFamilyMembersByRole(idFamily: string, idRole:number): Promise<{idUser: string}[]> {
         return await db.familyUser.findMany({
             where: {
                 idFamily,
@@ -88,7 +88,7 @@ export class FamilyUserRepository {
         })
     }
 
-    async changeMemberRoleByFamily(idFamily: string, idUser: string, idRole:number): Promise<FamilyUser | null> {
+    static async changeMemberRoleByFamily(idFamily: string, idUser: string, idRole:number): Promise<FamilyUser | null> {
         const idFamilyUser = await this.getFamilyUserId(idUser, idFamily);
         if (idFamilyUser) {
             return await db.familyUser.update({
@@ -103,7 +103,7 @@ export class FamilyUserRepository {
         return null;
     }
 
-    async addPointsToMemberInFamily(idFamily: string, idUser: string, addedPoints: number): Promise<FamilyUser> {
+    static async addPointsToMemberInFamily(idFamily: string, idUser: string, addedPoints: number): Promise<FamilyUser> {
         const idFamilyUser = await this.getFamilyUserId(idUser, idFamily);
 
         if (idFamilyUser) {

@@ -13,11 +13,11 @@ const invitationService = new InvitationService();
 export const invitationRouter = Router();
 
 invitationRouter.post("/create", autenticarToken,  async (req: Request, res: Response) => {
-    const { familyId, userId } = req.body;
+    const { familyId, username } = req.body;
     const token = req.user!;
         
     try {
-        const invitation = await invitationService.createInvitation(familyId, userId, token)
+        const invitation = await invitationService.createInvitation(familyId, username, token)
         res.status(201).send({ invitation })
 
     } catch (error) {

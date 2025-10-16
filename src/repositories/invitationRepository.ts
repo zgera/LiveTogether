@@ -4,7 +4,7 @@ import { db } from "../db/db";
 
 export class InvitationRepository {
 
-    async createInvitation(idFamily: string, idUserInvited: string, idUserInviter: string): Promise<Invitation> {
+    static async createInvitation(idFamily: string, idUserInvited: string, idUserInviter: string): Promise<Invitation> {
         let invitation = await db.invitation.create({
             data: {
                 idFamily: idFamily,
@@ -16,7 +16,7 @@ export class InvitationRepository {
         return invitation;
     }
 
-    getInvitation(idInvitation: string): Promise<Invitation | null> {
+    static async getInvitation(idInvitation: string): Promise<Invitation | null> {
         return db.invitation.findUnique({
             where: {
                 idInvitation: idInvitation
@@ -24,7 +24,17 @@ export class InvitationRepository {
         });
     }
 
-    async getInvitationsSentToUserByUserId(idUser: string): Promise<Invitation[]> { 
+    static async getInvitationByUserFamily(idUser: string, idFamily: string): Promise<Invitation | null>{
+        const invitation = await db.invitation.findFirst({
+            where: {
+                idUserInvited: idUser,
+                idFamily: idFamily
+            }
+        });
+        return invitation;
+    }
+
+    static async getInvitationsSentToUserByUserId(idUser: string): Promise<Invitation[]> { 
         let invitations = await db.invitation.findMany({
             where: {
                 idUserInvited: idUser,
@@ -34,7 +44,29 @@ export class InvitationRepository {
         return invitations;
     }
 
-    async getInvitationsSendedFromFamily(idFamily: string): Promise<Invitation[]> {
+    static async markInvitationsAsSeen(idUser: string): Promise<void> {
+        await db.invitation.updateMany({
+            where: {
+                idUserInvited: idUser,
+                seen: false
+            },
+            data: {
+                seen: true
+            }
+        });
+    }
+
+    static async getUnseenInvitationsCount(idUser: string): Promise<number> {
+        const count = await db.invitation.count({
+            where: {
+                idUserInvited: idUser,
+                seen: false
+            }
+        });
+        return count;
+    }
+
+    static async getInvitationsSentFromFamily(idFamily: string): Promise<Invitation[]> {
         let invitations = await db.invitation.findMany({
             where: {
                 idFamily: idFamily,
@@ -43,7 +75,7 @@ export class InvitationRepository {
         return invitations;
     }
 
-    async acceptInvitation(idInvitation: string): Promise<Invitation> {
+    static async acceptInvitation(idInvitation: string): Promise<Invitation> {
         let invitation = await db.invitation.update({
             where: {
                 idInvitation: idInvitation
@@ -55,7 +87,7 @@ export class InvitationRepository {
         return invitation;
     }
 
-    async rejectInvitation(idInvitation: string): Promise<Invitation> {
+    static async rejectInvitation(idInvitation: string): Promise<Invitation> {
         let invitation = await db.invitation.update({
             where: {
                 idInvitation: idInvitation

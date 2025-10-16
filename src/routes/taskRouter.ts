@@ -1,10 +1,10 @@
 import { Router, Request, Response } from "express";
-import { TaskService, TaskAssignmentService, TaskCompletionSercice } from "../services/taskService";
+import { TaskService, TaskAssignmentService, TaskCompletionService } from "../services/taskService";
 import { autenticarToken } from "../middleware/authMiddleware";
 
 const taskService = new TaskService();
 const taskAssignmentService = new TaskAssignmentService();
-const taskCompletionService = new TaskCompletionSercice();
+const taskCompletionService = new TaskCompletionService();
 export const taskRouter = Router();
 
 // Crear tarea
