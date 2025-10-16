@@ -22,7 +22,7 @@ export class TaskService {
     protected familyService = new FamilyService();
     protected authorizationService = new AuthorizationService();
 
-    async createTask(name: string, description: string, familyId: string, difficulty: number, token: TokenData): Promise<Task> {
+    async createTask(name: string, description: string, familyId: string, difficulty: number, deadline: Date, token: TokenData): Promise<Task> {
         if (!name || !description || !familyId || !difficulty || !token) {
             throw new Error("Todos los campos son obligatorios");
         }
@@ -33,8 +33,10 @@ export class TaskService {
 
         await this.authorizationService.assertUserInFamily(token, familyId)
 
+        deadline.setHours(23, 59, 59, 999);
+
         try {
-            const task = await this.repository.createTask(name, description, familyId, token.userId, difficulty);
+            const task = await this.repository.createTask(name, description, familyId, token.userId, difficulty, deadline);
             return task;
         } catch (err: any) {
             throw new Error("Ocurrió un error al crear la tarea. Intente más tarde");

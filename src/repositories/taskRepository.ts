@@ -12,7 +12,7 @@ endOfDay.setHours(23, 59, 59, 999);
 
 export class TaskRepository {
 
-    async createTask(name:string, description:string, familyId:string, creatorId:string, idDifficulty:number): Promise<Task>  {
+    async createTask(name:string, description:string, familyId:string, creatorId:string, idDifficulty:number, deadline: Date): Promise<Task>  {
     
         return await db.task.create({
             data: {
@@ -22,9 +22,22 @@ export class TaskRepository {
                 completedByAdmin: false,
                 familyId,
                 creatorId,
-                idDifficulty
+                idDifficulty,
+                deadline
             }})
-    }   
+    }
+
+    async getUserHistoryTasks(familyId: string, userId: string): Promise<Task[]> {
+        return await db.task.findMany({ where: 
+            { 
+                familyId,
+                assignedId: userId,
+                OR: [
+                    { completedByAdmin: true },
+                    { penalized: true }
+                ]
+            } });
+    }
 
     async getTask(idTask: string): Promise<Task | null>{
         return await db.task.findUnique({ where: { idTask } })

@@ -9,11 +9,11 @@ export const taskRouter = Router();
 
 // Crear tarea
 taskRouter.post("/create", autenticarToken, async (req: Request, res: Response) => {
-    const { name, description, familyId, difficulty } = req.body;
+    const { name, description, familyId, difficulty, deadline } = req.body;
     const token = req.user!;
 
     try {
-        const task = await taskService.createTask(name, description, familyId, difficulty, token);
+        const task = await taskService.createTask(name, description, familyId, difficulty, deadline, token);
         res.status(201).send({ task });
     } catch (error) {
         const message = error instanceof Error ? error.message : 'Error inesperado al crear tarea';

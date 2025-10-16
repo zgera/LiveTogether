@@ -9,6 +9,9 @@ model Task {
     assignedId String?
     idDifficulty Int
     createdAt DateTime @default(now())
+    deadline DateTime
+    penalized Boolean @default(false)
+    notifiedDeadlineSoon Boolean @default(false)
 
     creator     User     @relation("CreatorTasks", fields: [creatorId], references: [idUser])
     assignedTo  User?    @relation("AssignedTasks", fields: [assignedId], references: [idUser])

@@ -2,7 +2,6 @@ import { Server } from "socket.io"
 import { authenticationService } from "../services/authenticationService"
 import { FamilyService } from "../services/familyService"
 import http from "http"
-import { TokenData } from "../types/auth"
 
 const familyService = new FamilyService()
 
