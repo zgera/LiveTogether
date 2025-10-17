@@ -34,12 +34,8 @@ export class TaskService {
 
         deadline.setHours(23, 59, 59, 999);
 
-        try {
-            const task = await this.repository.createTask(name, description, familyId, token.userId, difficulty, deadline);
-            return task;
-        } catch (err: any) {
-            throw new Error("Ocurrió un error al crear la tarea. Intente más tarde");
-        }
+        const task = await TaskRepository.createTask(name, description, familyId, token.userId, difficulty, deadline);
+        return task;
     }
 
     async getTask(idTask: string): Promise<Task> {
@@ -133,9 +129,12 @@ export class TaskCompletionService extends TaskService {
             throw new Error("La tarea ya ha sido completada por el usuario");
         }
 
+        if (taskAssigned.penalized === false) {
+            throw new Error("La tarea ya ha perdido su validez por estar fuera de tiempo");
+        }
+
         const taskCompleted = await TaskRepository.markTaskAsCompletedByUser(idTask);
 
-        
 
         return taskCompleted;
     }

@@ -120,4 +120,20 @@ export class FamilyUserRepository {
         }
         throw new Error("El usuario no pertenece a la familia");
     }
+
+    static async subtractPointsFromMemberInFamily(idFamily: string, idUser: string, subtractedPoints: number): Promise<FamilyUser> {
+        const idFamilyUser = await this.getFamilyUserId(idUser, idFamily);
+
+        if (idFamilyUser) {
+            return await db.familyUser.update({
+                where: { idFamilyUser },
+                data: {
+                    points: {
+                        decrement: subtractedPoints
+                    }
+                }
+            });
+        }
+        throw new Error("El usuario no pertenece a la familia");
+    }
 }

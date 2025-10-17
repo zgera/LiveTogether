@@ -12,8 +12,7 @@ endOfDay.setHours(23, 59, 59, 999);
 
 export class TaskRepository {
 
-    async createTask(name:string, description:string, familyId:string, creatorId:string, idDifficulty:number, deadline: Date): Promise<Task>  {
-    
+    static async createTask(name:string, description:string, familyId:string, creatorId:string, idDifficulty:number, deadline: Date): Promise<Task>  {
         return await db.task.create({
             data: {
                 name,
@@ -27,7 +26,7 @@ export class TaskRepository {
             }})
     }
 
-    async getUserHistoryTasks(familyId: string, userId: string): Promise<Task[]> {
+    static async getUserHistoryTasks(familyId: string, userId: string): Promise<Task[]> {
         return await db.task.findMany({ where: 
             { 
                 familyId,
@@ -39,7 +38,7 @@ export class TaskRepository {
             } });
     }
 
-    async getTask(idTask: string): Promise<Task | null>{
+    static async getTask(idTask: string): Promise<Task | null>{
         return await db.task.findUnique({ where: { idTask } })
     }
 
@@ -57,7 +56,7 @@ export class TaskRepository {
 
 
     static async getTaskAssignedUncompletedByUser(familyId: string, userId: string): Promise<Task[]> {
-        return await db.task.findMany({ where: { familyId, assignedId: userId, completedByUser: false } });
+        return await db.task.findMany({ where: { familyId, assignedId: userId, completedByUser: false, penalized: false } });
     }
 
     static async getTaskUnderReviewByUser(familyId: string, userId: string): Promise<Task[]> {
@@ -70,10 +69,7 @@ export class TaskRepository {
                 familyId,
                 assignedId: { not: null }, 
                 completedByUser: false,
-                createdAt: {
-                    gte: startOfDay,
-                    lte: endOfDay
-                }
+                penalized: false
             }
         });
     }
@@ -84,10 +80,6 @@ export class TaskRepository {
                 familyId, 
                 completedByUser: true, 
                 completedByAdmin: false,
-                createdAt: {
-                    gte: startOfDay,
-                    lte: endOfDay
-                }
             } 
         });
     }
@@ -106,6 +98,54 @@ export class TaskRepository {
 
     static async getUnassignedTasks(familyId: string): Promise<Task[]> {
         return await db.task.findMany({ where: { familyId, assignedId: null } });
+    }
+
+    static async findExpiredUnpenalized(since: Date, now: Date) {
+        return db.task.findMany({
+            where: {
+                assignedId: { not: null },          // solo tareas asignadas
+                completedByUser: false,             // el usuario NO la completó
+                penalized: false,                   // aún no penalizada
+                deadline: {
+                gte: since,
+                lte: now,
+                },
+            },
+            include: {
+                difficulty: true,
+            },
+        });
+    }
+
+    static async findDueSoon(notifiedBefore: Date, now: Date) {
+        return db.task.findMany({
+            where: {
+                assignedId: { not: null },
+                completedByUser: false,
+                notifiedDeadlineSoon: false,
+                deadline: {
+                gte: now,
+                lte: notifiedBefore,
+                },
+            },
+            include: {
+                assignedTo: true,
+            }
+        });
+    }
+
+    static async markPenalized(idTask: string) {
+        return db.task.update({
+            where: { idTask },
+            data: { penalized: true }
+        });
+    }
+
+    static async markNotified(idTask: string) {
+        return db.task.update({
+            where: { idTask },
+            data: { notifiedDeadlineSoon: true }
+        });
     }
 
     static async markTaskAsCompletedByUser(idTask: string): Promise<Task> {
