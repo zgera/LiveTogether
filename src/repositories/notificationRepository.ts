@@ -1,14 +1,15 @@
 import { Notification } from "@prisma/client";
+import { NotificationType } from "@prisma/client";
 
 import { db } from "../db/db";
 
 export class notificationRepository {
-    static async createNotification(idFamily: string, idUser: string, taskCreated: boolean, title: string, idTask: string): Promise<Notification>{
+    static async createNotification(idFamily: string, idUser: string, type: NotificationType, title: string, idTask: string): Promise<Notification>{
         const notification = await db.notification.create({
             data: {
                 idFamily,
                 idUser,
-                taskCreated,
+                type,
                 title,
                 idTask
             }

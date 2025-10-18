@@ -6,6 +6,8 @@ import { userService } from "./userService";
 import { AuthorizationService } from "./authorizationService";
 import { FamilyUserRepository } from "../repositories/familyUserRepository";
 import { TokenData } from "../types/auth";
+import { familyUserWithUser } from "../types/famiyUserWithUser";
+import { FamilyWithRole } from "../types/familyWithRole";
 
 export class FamilyService {
 
@@ -45,19 +47,21 @@ export class FamilyService {
         return familia;
     }
 
-    private async getFamiliesByIDs(familiesIDs: {idFamily: string}[]): Promise<Family[]> {
-
-        const families: Family[] = await Promise.all(
+    private async getFamiliesByIDs(familiesIDs: {idFamily: string, idRole: number}[]): Promise<FamilyWithRole[]> {
+        
+        //REFACTORIZAR: HACER QUE EL ROL LO AGREGUE EN LA CONSULTA
+        const families: FamilyWithRole[] = await Promise.all(
             familiesIDs.map(async (family) => {
                 const familyData = await this.getFamily(family.idFamily);
-                return familyData;
+                const role = family.idRole === 1 ? "Miembro" : "Admin";
+                return { ...familyData, role } as FamilyWithRole;
             })
         );
 
         return families;
     }
 
-    async getFamiliesByUser(token: TokenData): Promise<Family[]> {
+    async getFamiliesByUser(token: TokenData): Promise<FamilyWithRole[]> {
         if (!token) {
             throw new Error("El token es obligatorio");
         }
@@ -122,5 +126,15 @@ export class FamilyService {
         await this.authorizationService.assertUserIsAdmin(token, idFamily)
 
         return await FamilyRepository.deleteFamily(idFamily);
+    }
+
+    async getFamilyRankings(token: TokenData, idFamily: string): Promise<familyUserWithUser[]> {
+        if (!token || !idFamily) {
+            throw new Error("Todos los campos son obligatorios");
+        }
+
+        await this.authorizationService.assertUserInFamily(token, idFamily)
+
+        return await FamilyUserRepository.getFamilyRankings(idFamily);
     }
 }

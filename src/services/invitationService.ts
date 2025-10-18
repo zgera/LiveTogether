@@ -5,6 +5,8 @@ import { userService } from "./userService";
 import { FamilyService } from "./familyService";
 import { Invitation } from "@prisma/client";
 import { webSocketService } from "../ws/webSocketService";
+import { invitationWithFamily } from "../types/invitationWithFamily";
+import { invitationWithUser } from "../types/invitationWithUser";
 
 export class InvitationService {
 
@@ -33,7 +35,13 @@ export class InvitationService {
         await this.familyService.getFamily(idFamily); // Verifica si la familia existe
 
         if (await this.existsInvitation(user.idUser, idFamily)) {
-            throw new Error("Ya existe una invitación pendiente para este usuario en la familia");
+            const invitation = await InvitationRepository.getInvitationByUserFamily(user.idUser, idFamily)
+            if (invitation && invitation.accepted === true) {
+                throw new Error("El usuario ya es miembro de la familia");
+            }
+            else if (invitation && invitation.accepted === null) {
+                throw new Error("Ya existe una invitación pendiente para este usuario en la familia");
+            }
         }
 
         const invitation = await InvitationRepository.createInvitation(idFamily, user.idUser, token.userId);
@@ -58,7 +66,7 @@ export class InvitationService {
         return invitation;
     }
 
-    async getInvitationsSentToUser(token: TokenData): Promise<Invitation[]> {
+    async getInvitationsSentToUser(token: TokenData): Promise<invitationWithFamily[]> {
         if (!token) {
             throw new Error("El token es obligatorio");
         }
@@ -80,7 +88,7 @@ export class InvitationService {
         return count;
     }
 
-    async getInvitationsSentFromFamily(idFamily: string, token: TokenData): Promise<Invitation[]> {
+    async getInvitationsSentFromFamily(idFamily: string, token: TokenData): Promise<invitationWithUser[]> {
         if (!idFamily || !token) {
             throw new Error("Todos los campos son obligatorios");
         }
@@ -102,6 +110,10 @@ export class InvitationService {
 
         if (invitation.idUserInvited !== token.userId) {
             throw new Error("El usuario no es el destinatario de la invitación");
+        }
+
+        if (invitation.accepted) {
+            throw new Error("La invitación ya ha sido aceptada o rechazada");
         }
 
         const updatedInvitation = await InvitationRepository.acceptInvitation(idInvitation);

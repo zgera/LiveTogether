@@ -49,6 +49,20 @@ familyRouter.get("/members/:id", autenticarToken,  async (req: Request, res: Res
     }
 })
 
+familyRouter.get("/rankings/:id", autenticarToken,  async (req: Request, res: Response) => {
+    const id = req.params.id;
+    const token = req.user!;
+
+    try {
+        const rankings = await familyService.getFamilyRankings(token, id)
+        res.status(200).send({ rankings })
+
+    } catch (error) {
+        const message = error instanceof Error ? error.message : 'Error inesperado al obtener los rankings de la familia';
+        res.status(401).send({ error: message });
+    }
+})
+
 //REVISAR QUERIEEEEEEEEEEEEEEEEEES
 /* familyRouter.post("/delete/:id", autenticarToken,  async (req: Request, res: Response) => {
     const id = req.params.id;

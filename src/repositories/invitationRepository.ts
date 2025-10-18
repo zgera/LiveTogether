@@ -1,5 +1,8 @@
 import { Invitation } from "@prisma/client";
 
+import { invitationWithFamily } from "../types/invitationWithFamily";
+import { invitationWithUser } from "../types/invitationWithUser";
+
 import { db } from "../db/db";
 
 export class InvitationRepository {
@@ -34,11 +37,14 @@ export class InvitationRepository {
         return invitation;
     }
 
-    static async getInvitationsSentToUserByUserId(idUser: string): Promise<Invitation[]> { 
+    static async getInvitationsSentToUserByUserId(idUser: string): Promise<invitationWithFamily[]> { 
         let invitations = await db.invitation.findMany({
             where: {
                 idUserInvited: idUser,
                 accepted: null
+            },
+            include: {
+                family: true
             }
         });
         return invitations;
@@ -66,10 +72,13 @@ export class InvitationRepository {
         return count;
     }
 
-    static async getInvitationsSentFromFamily(idFamily: string): Promise<Invitation[]> {
+    static async getInvitationsSentFromFamily(idFamily: string): Promise<invitationWithUser[]> {
         let invitations = await db.invitation.findMany({
             where: {
                 idFamily: idFamily,
+            },
+            include: {
+                userInvited: true,
             }
         });
         return invitations;

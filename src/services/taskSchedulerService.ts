@@ -1,9 +1,13 @@
 import cron from "node-cron";
 import { TaskRepository } from "../repositories/taskRepository";
 import { FamilyUserRepository } from "../repositories/familyUserRepository";
-import { webSocketService } from "../ws/webSocketService";
+import { notificationService } from "./notificationService";
+import { NotificationType } from "@prisma/client";
 
 class TaskSchedulerService {
+
+  private NotificationService = new notificationService();
+
   constructor() {
     // Cron cada 10 minutos: procesar tareas vencidas
     cron.schedule("*/10 * * * *", async () => {
@@ -29,12 +33,7 @@ class TaskSchedulerService {
         // Marcar como penalizada
         await TaskRepository.markPenalized(task.idTask);
 
-        // Notificar por WebSocket
-        webSocketService.emitFamilyMessage(task.familyId, {
-          type: "TaskExpired",
-          message: `La tarea "${task.name}" ha vencido. Se aplicó una penalización.`,
-          idTask: task.idTask,
-        });
+        await this.NotificationService.createNotification(task.familyId, task.assignedId!, NotificationType.TASK_EXPIRED, task.idTask);
 
         console.log(`[Penalización] ${task.name} vencida, puntos descontados`);
     }
@@ -49,12 +48,7 @@ class TaskSchedulerService {
     for (const task of soonTasks) {
         await TaskRepository.markNotified(task.idTask);
 
-        // Notificar por WebSocket
-        webSocketService.emitFamilyMessage(task.familyId, {
-          type: "TaskDeadlineSoon",
-          message: `La tarea "${task.name}" vence en menos de 2 horas.`,
-          idTask: task.idTask,
-        });
+        await this.NotificationService.createNotification(task.familyId, task.assignedId!, NotificationType.TASK_EXPIRE_SOON, task.idTask);
 
         console.log(`[Notificación] ${task.name} vence pronto`);
     }

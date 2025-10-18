@@ -1,8 +1,15 @@
+enum NotificationType {
+    TASK_CREATED
+    TASK_ASSIGNED
+    TASK_EXPIRE_SOON
+    TASK_EXPIRED
+}
+
 model Notification {
     idNotification String @id @default(cuid())
     idUser String
     idFamily String
-    taskCreated Boolean
+    type NotificationType
     title String
     idTask String
     createdAt DateTime @default(now())

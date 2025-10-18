@@ -45,7 +45,7 @@ export class userService {
     async verifyUser(username: string, password: string): Promise<UserSafe>{
         if (!username || !password) {
             throw new Error("Todos los campos son obligatorios")
-        }0.
+        }
 
         const user = await this.getUserCompleteByUsername(username)
 

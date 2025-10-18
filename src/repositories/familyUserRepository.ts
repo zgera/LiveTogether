@@ -1,5 +1,7 @@
 import { FamilyUser } from "@prisma/client";
 
+import { familyUserWithUser } from "../types/famiyUserWithUser";
+
 import { db } from "../db/db";
 
 
@@ -54,13 +56,14 @@ export class FamilyUserRepository {
         return null;
     }
 
-    static async getFamiliesByUser(idUser: string): Promise<{idFamily: string}[]> {
+    static async getFamiliesByUser(idUser: string): Promise<{idFamily: string, idRole: number}[]> {
         return await db.familyUser.findMany({
             where: {
                 idUser
             },
             select: {
-                idFamily: true
+                idFamily: true,
+                idRole: true
             }
         })
     }
@@ -75,6 +78,21 @@ export class FamilyUserRepository {
             }
         })  
     }
+
+        static async getFamilyRankings(idFamily: string): Promise<familyUserWithUser[]> {
+            const familyUser = await db.familyUser.findMany({
+                where: {
+                    idFamily
+                },
+                orderBy: {
+                    points: "desc"
+                },
+                include: {
+                    user: true
+                }
+            })
+            return familyUser;
+        }
 
     static async getFamilyMembersByRole(idFamily: string, idRole:number): Promise<{idUser: string}[]> {
         return await db.familyUser.findMany({

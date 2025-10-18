@@ -1,5 +1,7 @@
 import { Task } from "@prisma/client";
 
+import { taskWithUserAssigned } from "../types/taskWithUserAssigned";
+
 import { db } from "../db/db";
 
 const now = new Date();
@@ -27,15 +29,18 @@ export class TaskRepository {
     }
 
     static async getUserHistoryTasks(familyId: string, userId: string): Promise<Task[]> {
-        return await db.task.findMany({ where: 
-            { 
-                familyId,
-                assignedId: userId,
-                OR: [
-                    { completedByAdmin: true },
-                    { penalized: true }
-                ]
-            } });
+        return await db.task.findMany({ 
+            where: 
+                { 
+                    familyId,
+                    assignedId: userId,
+                    OR: [
+                        { completedByAdmin: true },
+                        { penalized: true }
+                    ]
+                },
+            orderBy: { deadline: 'desc' }
+        });
     }
 
     static async getTask(idTask: string): Promise<Task | null>{
@@ -63,25 +68,47 @@ export class TaskRepository {
         return await db.task.findMany({ where: { familyId, assignedId: userId, completedByUser: true, completedByAdmin: false } });
     }
 
-    static async getTaskAssignedUncompleted(familyId: string): Promise<Task[]> {
-        return await db.task.findMany({ 
+    static async getTaskAssignedUncompleted(familyId: string): Promise<taskWithUserAssigned[]> {
+        const tasks = await db.task.findMany({ 
             where: { 
                 familyId,
                 assignedId: { not: null }, 
                 completedByUser: false,
                 penalized: false
+            },
+            include: {
+                assignedTo: {
+                    select: {
+                        idUser: true,
+                        username: true,
+                        firstName: true,
+                        lastName: true
+                    }
+                }
             }
         });
+        return tasks
     }
 
-    static async getTasksUnderReview(familyId: string): Promise<Task[]>  {
-        return await db.task.findMany({ 
+    static async getTasksUnderReview(familyId: string): Promise<taskWithUserAssigned[]>  {
+        const tasks = await db.task.findMany({ 
             where: { 
                 familyId, 
                 completedByUser: true, 
                 completedByAdmin: false,
-            } 
+            },
+            include: {
+                assignedTo: {
+                    select: {
+                        idUser: true,
+                        username: true,
+                        firstName: true,
+                        lastName: true
+                    }
+                }
+            }
         });
+        return tasks
     }
 
     static async getTaskCompletedByAdmin(familyId: string): Promise<Task[]> {

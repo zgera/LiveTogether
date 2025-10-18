@@ -1,4 +1,5 @@
 import { Task } from "@prisma/client";
+import { NotificationType } from "@prisma/client";
 import { FamilyUserRepository } from "../repositories/familyUserRepository";
 import { TaskRepository } from "../repositories/taskRepository";
 import { DifficultyRepository } from "../repositories/difficultyRepository";
@@ -6,6 +7,7 @@ import { TokenData } from "../types/auth";
 import { AuthorizationService } from "./authorizationService";
 import { FamilyService } from "./familyService";
 import { notificationService } from "./notificationService";
+import { taskWithUserAssigned } from "../types/taskWithUserAssigned";
 
 enum Difficulty {
     facil = 1,
@@ -35,6 +37,9 @@ export class TaskService {
         deadline.setHours(23, 59, 59, 999);
 
         const task = await TaskRepository.createTask(name, description, familyId, token.userId, difficulty, deadline);
+
+        await this.NotificationService.createNotification(familyId, token.userId, NotificationType.TASK_CREATED, task.idTask)
+
         return task;
     }
 
@@ -85,7 +90,7 @@ export class TaskService {
         return tasks;
     }
 
-    async getTasksAssignedUncompleted(familyId: string, token: TokenData): Promise<Task[]> {
+    async getTasksAssignedUncompleted(familyId: string, token: TokenData): Promise<taskWithUserAssigned[]> {
         if (!familyId || !token) {
             throw new Error("Todos los campos son obligatorios");
         }
@@ -97,7 +102,7 @@ export class TaskService {
         return tasks;
     }
 
-    async getTasksUnderReview(familyId: string, token: TokenData): Promise<Task[]> {
+    async getTasksUnderReview(familyId: string, token: TokenData): Promise<taskWithUserAssigned[]> {
         if (!familyId || !token) {
             throw new Error("Todos los campos son obligatorios");
         }
@@ -106,6 +111,19 @@ export class TaskService {
 
         const tasks = await TaskRepository.getTasksUnderReview(familyId);
         
+        return tasks;
+    }
+
+    // Obtener el historial de tareas completadas o penalizadas por un usuario
+    async getUserHistoryTasks(familyId: string, token: TokenData): Promise<Task[]> {
+        if (!familyId || !token) {
+            throw new Error("Todos los campos son obligatorios");
+        }
+
+        await this.authorizationService.assertUserInFamily(token, familyId)
+
+        const tasks = await TaskRepository.getUserHistoryTasks(familyId, token.userId);
+
         return tasks;
     }
 }
@@ -188,7 +206,7 @@ export class TaskAssignmentService extends TaskService {
 
     async externAssign(idTask: string, idUser: string): Promise<Task> {
         const task = await TaskRepository.assignTaskToUser(idTask, idUser)
-        await this.NotificationService.createNotification(task.familyId, idUser, false, task.name, task.idTask)
+        await this.NotificationService.createNotification(task.familyId, idUser, NotificationType.TASK_ASSIGNED, task.idTask)
         return task
     }    
 
@@ -279,6 +297,10 @@ export class TaskAssignmentService extends TaskService {
             assigned: false
             }));
         const tasks = await TaskRepository.getTaskUnassigned(idFamily)
+
+        if (tasks.length === 0){
+            throw new Error("No hay tareas sin asignar")
+        }
 
         let index: number = 0
 

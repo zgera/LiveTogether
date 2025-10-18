@@ -91,6 +91,19 @@ taskRouter.get("/underreview/:familyId", autenticarToken, async (req: Request, r
     }
 });
 
+taskRouter.get("/history/:familyId", autenticarToken,  async (req: Request, res: Response) => {
+    const { familyId } = req.params;
+    const token = req.user!;
+
+    try {
+        const tasks = await taskService.getUserHistoryTasks(familyId, token);
+        res.status(200).send({ tasks });
+    } catch (error) {
+        const message = error instanceof Error ? error.message : 'Error inesperado al obtener el historial de tareas';
+        res.status(401).send({ error: message });
+    }
+});
+    
 // Auto-asignar tarea a usuario
 taskRouter.post("/autoassign/:idTask", autenticarToken, async (req: Request, res: Response) => {
     const { idTask } = req.params;
