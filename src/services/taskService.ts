@@ -32,7 +32,7 @@ export class TaskService {
 
         await this.authorizationService.assertUserInFamily(token, familyId)
 
-        deadline.setHours(23, 59, 59, 999);
+        //deadline.setHours(23, 59, 59, 999);
 
         const task = await TaskRepository.createTask(name, description, familyId, token.userId, difficulty, deadline);
         return task;
@@ -129,7 +129,7 @@ export class TaskCompletionService extends TaskService {
             throw new Error("La tarea ya ha sido completada por el usuario");
         }
 
-        if (taskAssigned.penalized === false) {
+        if (taskAssigned.penalized === true) {
             throw new Error("La tarea ya ha perdido su validez por estar fuera de tiempo");
         }
 
