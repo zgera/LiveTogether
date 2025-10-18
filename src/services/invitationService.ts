@@ -28,7 +28,9 @@ export class InvitationService {
             throw new Error("Todos los campos son obligatorios");
         }
 
-        await this.authorizationService.assertUserIsAdmin(token, idFamily)
+        await this.authorizationService.assertUserIsAdmin(token, idFamily);
+
+        if (usernameInvited === token.username) throw new Error("No te puedes invitar a tu propia familia")
 
         const user = await this.userService.getUserByUsername(usernameInvited); // Verifica si el usuario existe
 

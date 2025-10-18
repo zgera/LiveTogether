@@ -27,7 +27,7 @@ userRouter.post("/signin", async (req: Request, res: Response) => {
 
         const tokenData: TokenData = {
             userId: user.idUser,
-            userName: user.username
+            username: user.username
         };
 
         const token = authenticationService.createToken(tokenData);
