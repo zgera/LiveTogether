@@ -1,5 +1,4 @@
 # LiveTogether
-```json
 /user
   /signup
     {
@@ -115,4 +114,51 @@
         }
     ]
 }
-```
+
+/invitation
+  /create
+    {
+      "familyId": "cmgzo0smf0004fngo9jodpsmw",
+      "username": "fGreco"
+    }
+    {
+      "invitation": {
+          "idInvitation": "cmgzran970001fnzofncncziv",
+          "idFamily": "cmgzo0smf0004fngo9jodpsmw",
+          "idUserInvited": "cmgzqsgc20000fn7kd75sntf2",
+          "idUserInviter": "cmgznv2yc0000fn4o2bb2mrbg",
+          "accepted": null,
+          "seen": false
+      }
+    }
+
+  /get
+    {
+      "invitation": [
+          {
+              "idInvitation": "cmgzran970001fnzofncncziv",
+              "idFamily": "cmgzo0smf0004fngo9jodpsmw",
+              "idUserInvited": "cmgzqsgc20000fn7kd75sntf2",
+              "idUserInviter": "cmgznv2yc0000fn4o2bb2mrbg",
+              "accepted": null,
+              "seen": false,
+              "family": {
+                  "idFamily": "cmgzo0smf0004fngo9jodpsmw",
+                  "name": "Tontos"
+              }
+          }
+      ]
+  }
+
+/accept/:id
+  {
+      "invitation": {
+          "idInvitation": "cmgzran970001fnzofncncziv",
+          "idFamily": "cmgzo0smf0004fngo9jodpsmw",
+          "idUserInvited": "cmgzqsgc20000fn7kd75sntf2",
+          "idUserInviter": "cmgznv2yc0000fn4o2bb2mrbg",
+          "accepted": true,
+          "seen": true
+      }
+  }
+
