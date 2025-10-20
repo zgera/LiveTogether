@@ -67,4 +67,18 @@ invitationRouter.post("/accept/:id", autenticarToken,  async (req: Request, res:
     }
 })
 
+invitationRouter.post("/reject/:id", autenticarToken,  async (req: Request, res: Response) => {
+    const id = req.params.id;
+    const token = req.user!;
+        
+    try {
+        const invitation = await invitationService.rejectInvitation(id, token)
+        res.status(200).send({ invitation })
+
+    } catch (error) {
+        const message = error instanceof Error ? error.message : 'Error inesperado al acceptar invitación';
+        res.status(401).send({ error: message });
+    }
+})
+
 //REJECT INVITATION

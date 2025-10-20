@@ -55,17 +55,61 @@ export class TaskRepository {
             },
             orderBy: {
                 idDifficulty: 'desc'
+            },
+            include: {
+                creator: {
+                    select: {
+                        idUser: true,
+                        username: true,
+                        firstName: true,
+                        lastName: true
+                    }
+                }
             }
         });
     }
 
 
     static async getTaskAssignedUncompletedByUser(familyId: string, userId: string): Promise<Task[]> {
-        return await db.task.findMany({ where: { familyId, assignedId: userId, completedByUser: false, penalized: false } });
+        return await db.task.findMany({ 
+            where: { 
+                familyId, 
+                assignedId: userId, 
+                completedByUser: false, 
+                penalized: false 
+            },
+            include: {
+                creator: {
+                    select: {
+                        idUser: true,
+                        username: true,
+                        firstName: true,
+                        lastName: true
+                    }
+                }
+            }
+        });
     }
 
     static async getTaskUnderReviewByUser(familyId: string, userId: string): Promise<Task[]> {
-        return await db.task.findMany({ where: { familyId, assignedId: userId, completedByUser: true, completedByAdmin: false } });
+        return await db.task.findMany({ 
+            where: { 
+                familyId, 
+                assignedId: userId, 
+                completedByUser: true, 
+                completedByAdmin: false 
+            },
+            include: {
+                creator: {
+                    select: {
+                        idUser: true,
+                        username: true,
+                        firstName: true,
+                        lastName: true
+                    }
+                }
+            }
+        });
     }
 
     static async getTaskAssignedUncompleted(familyId: string): Promise<taskWithUserAssigned[]> {
@@ -78,6 +122,14 @@ export class TaskRepository {
             },
             include: {
                 assignedTo: {
+                    select: {
+                        idUser: true,
+                        username: true,
+                        firstName: true,
+                        lastName: true
+                    }
+                },
+                creator: {
                     select: {
                         idUser: true,
                         username: true,
@@ -99,6 +151,14 @@ export class TaskRepository {
             },
             include: {
                 assignedTo: {
+                    select: {
+                        idUser: true,
+                        username: true,
+                        firstName: true,
+                        lastName: true
+                    }
+                },
+                creator: {
                     select: {
                         idUser: true,
                         username: true,

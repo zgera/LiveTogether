@@ -7,11 +7,14 @@ import { familyRouter } from "./routes/familyRouter";
 import { invitationRouter } from "./routes/invitationRouter";
 import { taskRouter } from "./routes/taskRouter";
 import { webSocketService } from "./ws/webSocketService";
+import { TaskSchedulerService } from "./services/taskSchedulerService";
 
 
 import express from 'express';
 
 const app = express()
+
+const taskScheduler = new TaskSchedulerService()
 
 app.use(express.json())
 app.use(cookieParser());

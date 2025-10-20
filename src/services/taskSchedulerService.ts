@@ -4,7 +4,7 @@ import { FamilyUserRepository } from "../repositories/familyUserRepository";
 import { notificationService } from "./notificationService";
 import { NotificationType } from "@prisma/client";
 
-class TaskSchedulerService {
+export class TaskSchedulerService {
 
   private NotificationService = new notificationService();
 
@@ -55,4 +55,4 @@ class TaskSchedulerService {
   }
 }
 
-export const taskSchedulerService = new TaskSchedulerService();
+

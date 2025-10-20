@@ -36,36 +36,7 @@
 			"response": []
 		},
 		{
-			"name": "iniciar sesión caludio",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"username\": \"FedeCG07\",\r\n    \"password\": \"12345678\"\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "http://localhost:3000/user/signin",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "3000",
-					"path": [
-						"user",
-						"signin"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "iniciar sesión jFernandez",
+			"name": "iniciar sesión",
 			"request": {
 				"method": "POST",
 				"header": [],
@@ -108,6 +79,35 @@
 					"path": [
 						"user",
 						"signout"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "crear familia",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"Fernandez\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/family/create",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"family",
+						"create"
 					]
 				}
 			},
@@ -190,7 +190,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"name\": \"Lavar los platos\",\r\n    \"description\": \"Lavar todos los platos sucios\",\r\n    \"familyId\": \"cme4n2zu70000ubtoo8jzbr7f\",\r\n    \"difficulty\": 1\r\n}",
+					"raw": "{\r\n    \"name\": \"Lavar los platos\",\r\n    \"description\": \"Lavar todos los platos\",\r\n    \"familyId\": \"cmgw96hs70000fn4gov3oftt9\",\r\n    \"difficulty\": 2,\r\n    \"deadline\": \"2025-10-18T23:59:59.999-03:00\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"

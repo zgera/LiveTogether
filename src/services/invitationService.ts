@@ -136,6 +136,10 @@ export class InvitationService {
             throw new Error("El usuario no es el destinatario de la invitación");
         }
 
+        if (invitation.accepted) {
+            throw new Error("La invitación ya ha sido aceptada o rechazada");
+        }
+
         const rejectedInvitation = await InvitationRepository.rejectInvitation(idInvitation);
         
         return rejectedInvitation;
