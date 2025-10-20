@@ -1,4 +1,5 @@
 # LiveTogether
+```json
 /user
   /signup
     {
@@ -114,3 +115,4 @@
         }
     ]
 }
+```
