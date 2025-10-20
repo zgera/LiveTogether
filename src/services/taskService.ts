@@ -126,6 +126,44 @@ export class TaskService {
 
         return tasks;
     }
+
+    async getProgressOfUserTasks(familyId: string, token: TokenData): Promise<{ completedTasks: number; totalTasks: number }> {
+        if (!familyId || !token) {
+            throw new Error("Todos los campos son obligatorios");
+        }
+
+        const startOfDay = new Date();
+        startOfDay.setHours(0, 0, 0, 0);
+
+        const endOfDay = new Date();
+        endOfDay.setHours(23, 59, 59, 999);
+
+        await this.authorizationService.assertUserInFamily(token, familyId)
+
+        const completedTasks = await TaskRepository.getTaskCountCompletedTodayByUser(familyId, token.userId, startOfDay, endOfDay);
+        const totalTasks = await TaskRepository.getTaskCountTodayByUser(familyId, token.userId, startOfDay, endOfDay);
+
+        return { completedTasks, totalTasks };
+    }
+
+    async getProgressOfFamilyTasks(familyId: string, token: TokenData): Promise<{ completedTasks: number; totalTasks: number }> {
+        if (!familyId || !token) {
+            throw new Error("Todos los campos son obligatorios");
+        }
+
+        const startOfDay = new Date();
+        startOfDay.setHours(0, 0, 0, 0);
+
+        const endOfDay = new Date();
+        endOfDay.setHours(23, 59, 59, 999);
+
+        await this.authorizationService.assertUserInFamily(token, familyId)
+
+        const completedTasks = await TaskRepository.getTaskCountCompletedTodayByFamily(familyId, startOfDay, endOfDay);
+        const totalTasks = await TaskRepository.getTaskCountTodayByFamily(familyId, startOfDay, endOfDay);
+
+        return { completedTasks, totalTasks };
+    }
 }
 
 export class TaskCompletionService extends TaskService {
@@ -237,6 +275,10 @@ export class TaskAssignmentService extends TaskService {
 
         if (taskAssigned.assignedId === null) {
             throw new Error("La tarea no está asignada a ningún usuario");
+        }
+
+        if (taskAssigned.completedByUser ) {
+            throw new Error("La tarea ya ha sido completada por el usuario");
         }
 
         await this.authorizationService.assertUserIsAdmin(token, taskAssigned.familyId)

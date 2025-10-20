@@ -18,6 +18,15 @@ export class FamilyUserRepository {
         })
     }
 
+    static async getFamilyUser(idUser: string, idFamily: string): Promise<FamilyUser | null> {
+        return await db.familyUser.findFirst({
+            where: {
+                idUser,
+                idFamily
+            }
+        })
+    }
+
     static async getFamilyUserRole(idUser: string, idFamily: string): Promise<number | null> {
         const result = await db.familyUser.findFirst({
             where: {
@@ -93,6 +102,16 @@ export class FamilyUserRepository {
             })
             return familyUser;
         }
+
+    static async getFamilyAdmin(idFamily: string): Promise<FamilyUser | null> {
+        const admin = await db.familyUser.findFirst({
+            where: {
+                idFamily,
+                idRole: 2
+            }
+        })
+        return admin;
+    }
 
     static async getFamilyMembersByRole(idFamily: string, idRole:number): Promise<{idUser: string}[]> {
         return await db.familyUser.findMany({

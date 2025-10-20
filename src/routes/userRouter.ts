@@ -109,3 +109,23 @@ userRouter.get("/me", autenticarToken, async (req, res) => {
         res.status(500).json({ error: message });
     }
 });
+
+userRouter.get("/meInFamily/:familyId", autenticarToken, async (req, res) => {
+    const token = req.user!;
+    const { familyId } = req.params;
+
+    try {
+        const familyUser = await UserService.getUserPointsInFamily(token, familyId);
+        res.send({ familyUser });
+    } catch (error) {
+        const message = error instanceof Error ? error.message : 'Error inesperado al obtener los puntos del usuario en la familia';
+
+        // Mejoramos el status según el tipo de error
+        if (message === "El usuario no pertenece a la familia") {
+            res.status(404).json({ error: message });
+            return;
+        }
+
+        res.status(500).json({ error: message });
+    }
+});

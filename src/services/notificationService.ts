@@ -9,7 +9,8 @@ enum NotificationTypesTitle {
     TASK_CREATED = "Nueva tarea creada",
     TASK_ASSIGNED = "Tarea asignada",
     TASK_EXPIRE_SOON = "Tarea próxima a vencer",
-    TASK_EXPIRED = "Tarea vencida"
+    TASK_EXPIRED = "Tarea vencida",
+    TASK_UNASSIGNED = "Tarea desasignada"
 }
 
 
@@ -26,7 +27,7 @@ class createNewTaskStrategy implements createNotificationStrategy{
             notificationRepository.createNotification(idFamily, member.idUser, type, title, idTask)
         })
 
-        webSocketService.emitFamilyMessage(idFamily, {type: "Notification", idFamily: `${idFamily}`})
+        webSocketService.emitFamilyMessage(idFamily, {type: "Notification", idFamily: `${idFamily}`, title: title})
     }
 }
 
@@ -35,21 +36,28 @@ class createAssignedTaskStrategy implements createNotificationStrategy{
 
         notificationRepository.createNotification(idFamily, idUser, type, title, idTask)
 
-        webSocketService.emitPrivateMessage(idUser, {type: "Notification", idFamily: `${idFamily}`})
+        webSocketService.emitPrivateMessage(idUser, {type: "Notification", idFamily: `${idFamily}`, title: title})
     }
 }
 
 class createExpireSoonTaskStrategy implements createNotificationStrategy{
     async send(idFamily: string, idUser: string, type: NotificationType, title: string, idTask: string): Promise<void> {
         notificationRepository.createNotification(idFamily, idUser, type, title, idTask)
-        webSocketService.emitPrivateMessage(idUser, {type: "Notification", idFamily: `${idFamily}`})
+        webSocketService.emitPrivateMessage(idUser, {type: "Notification", idFamily: `${idFamily}`, title: title})
     }
 }
 
 class createExpiredTaskStrategy implements createNotificationStrategy{
     async send(idFamily: string, idUser: string, type: NotificationType, title: string, idTask: string): Promise<void> {
         notificationRepository.createNotification(idFamily, idUser, type, title, idTask)
-        webSocketService.emitPrivateMessage(idUser, {type: "Notification", idFamily: `${idFamily}`})
+        webSocketService.emitPrivateMessage(idUser, {type: "Notification", idFamily: `${idFamily}`, title: title})
+    }
+}
+
+class createUnassignedTaskStrategy implements createNotificationStrategy{
+    async send(idFamily: string, idUser: string, type: NotificationType, title: string, idTask: string): Promise<void> {
+        notificationRepository.createNotification(idFamily, idUser, type, title, idTask)
+        webSocketService.emitPrivateMessage(idUser, {type: "Notification", idFamily: `${idFamily}`, title: title})
     }
 }
 
@@ -65,6 +73,8 @@ export class notificationService{
                 return new createExpireSoonTaskStrategy();
             case NotificationType.TASK_EXPIRED:
                 return new createExpiredTaskStrategy();
+            case NotificationType.TASK_UNASSIGNED:
+                return new createUnassignedTaskStrategy();
             default:
                 throw new Error("Tipo de notificación no soportado");
         }

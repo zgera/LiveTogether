@@ -1,10 +1,12 @@
 import { User } from "@prisma/client";
 import { UserSafe } from "../types/user";
 import { TokenData } from "../types/auth";
+import { FamilyUser } from "@prisma/client";
 
 import bcrypt from "bcrypt";
 
 import { UserRepository } from "../repositories/userRepository"
+import { FamilyUserRepository } from "../repositories/familyUserRepository";
 
 const MAX_CHARACTERS_FOR_USERNAME = 15
 const MIN_CHARACTERS_FOR_USERNAME = 4
@@ -94,6 +96,14 @@ export class userService {
         }
 
         return user
+    }
+
+    async getUserPointsInFamily(token: TokenData, idFamily: string): Promise<FamilyUser> {
+        const familyUser = await FamilyUserRepository.getFamilyUser(token.userId, idFamily)
+        if (!familyUser) {
+            throw new Error("El usuario no pertenece a la familia")
+        }
+        return familyUser;
     }
 
 }

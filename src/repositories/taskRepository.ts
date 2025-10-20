@@ -28,6 +28,58 @@ export class TaskRepository {
             }})
     }
 
+    static async getTaskCountCompletedTodayByUser(familyId: string, userId: string, startOfDay: Date, endOfDay: Date): Promise<number> {
+        return await db.task.count({
+            where: {
+                familyId,
+                assignedId: userId,
+                completedByAdmin: true,
+                deadline: {
+                    gte: startOfDay,
+                    lte: endOfDay
+                }
+            }
+        });
+    }
+
+    static async getTaskCountTodayByUser(familyId: string, userId: string, startOfDay: Date, endOfDay: Date): Promise<number> {
+        return await db.task.count({
+            where: {
+                familyId,
+                assignedId: userId,
+                deadline: {
+                    gte: startOfDay,
+                    lte: endOfDay
+                }
+            }
+        });
+    }
+
+    static async getTaskCountTodayByFamily(familyId: string, startOfDay: Date, endOfDay: Date): Promise<number> {
+        return await db.task.count({
+            where: {
+                familyId,
+                deadline: {
+                    gte: startOfDay,
+                    lte: endOfDay
+                }
+            }
+        });
+    }
+
+    static async getTaskCountCompletedTodayByFamily(familyId: string, startOfDay: Date, endOfDay: Date): Promise<number> {
+        return await db.task.count({
+            where: {
+                familyId,
+                completedByAdmin: true,
+                deadline: {
+                    gte: startOfDay,
+                    lte: endOfDay
+                }
+            }
+        });
+    }
+
     static async getUserHistoryTasks(familyId: string, userId: string): Promise<Task[]> {
         return await db.task.findMany({ 
             where: 

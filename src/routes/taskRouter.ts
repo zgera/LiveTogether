@@ -63,6 +63,33 @@ taskRouter.get("/underreview/user/:familyId", autenticarToken, async (req: Reque
     }
 });
 
+// Obtener progreso de las tareas del dia de un usuario (user)
+taskRouter.get("/dailyprogress/:familyId", autenticarToken, async (req: Request, res: Response) => {
+    const { familyId } = req.params;
+    const token = req.user!;
+
+    try {
+        const progress = await taskService.getProgressOfUserTasks(familyId, token);
+        res.status(200).send({ progress });
+    } catch (error) {
+        const message = error instanceof Error ? error.message : 'Error inesperado al obtener el progreso diario de tareas';
+        res.status(401).send({ error: message });
+    }
+});
+
+//Obtener progreso de las tareas del dia de la familia (user)
+taskRouter.get("/familydailyprogress/:familyId", autenticarToken, async (req: Request, res: Response) => {
+    const { familyId } = req.params;
+    const token = req.user!;
+    try {
+        const progress = await taskService.getProgressOfFamilyTasks(familyId, token);
+        res.status(200).send({ progress });
+    } catch (error) {
+        const message = error instanceof Error ? error.message : 'Error inesperado al obtener el progreso diario de tareas de la familia';
+        res.status(401).send({ error: message });
+    }
+});
+
 // Obtener tareas asignadas y no completadas (admin)
 taskRouter.get("/assigned/uncompleted/admin/:familyId", autenticarToken, async (req: Request, res: Response) => {
     const { familyId } = req.params;
@@ -91,6 +118,7 @@ taskRouter.get("/underreview/:familyId", autenticarToken, async (req: Request, r
     }
 });
 
+// Obtener historial de tareas de un usuario (user)
 taskRouter.get("/history/:familyId", autenticarToken,  async (req: Request, res: Response) => {
     const { familyId } = req.params;
     const token = req.user!;
