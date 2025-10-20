@@ -162,3 +162,77 @@
       }
   }
 
+/task
+  /create
+    {
+      "name": "Lavar los platos",
+      "description": "Lavar todos los platos",
+      "familyId": "cmgzo0smf0004fngo9jodpsmw",
+      "difficulty": 2,
+      "deadline": "2025-10-18T23:59:59.999-03:00"
+  }
+  {
+    "task": {
+        "idTask": "cmgzroewc0001fnt4kbeocewa",
+        "name": "Lavar los platos",
+        "description": "Lavar todos los platos",
+        "completedByUser": false,
+        "completedByAdmin": false,
+        "familyId": "cmgzo0smf0004fngo9jodpsmw",
+        "creatorId": "cmgznv2yc0000fn4o2bb2mrbg",
+        "assignedId": null,
+        "idDifficulty": 2,
+        "createdAt": "2025-10-20T23:28:52.332Z",
+        "deadline": "2025-10-19T02:59:59.999Z",
+        "penalized": false,
+        "notifiedDeadlineSoon": false
+    }
+}
+
+/assigned/uncompleted/:id
+  {
+    "tasks": [
+        {
+              "idTask": "cmgzpg4le000jfncgdnlsogd2",
+              "name": "Fregar el piso",
+              "description": "Fregar todos los pisos de la casa",
+              "completedByUser": false,
+              "completedByAdmin": false,
+              "familyId": "cmgzo0smf0004fngo9jodpsmw",
+              "creatorId": "cmgznv2yc0000fn4o2bb2mrbg",
+              "assignedId": "cmgznv2yc0000fn4o2bb2mrbg",
+              "idDifficulty": 3,
+              "createdAt": "2025-10-20T22:26:26.498Z",
+              "deadline": "2025-10-26T02:59:59.999Z",
+              "penalized": false,
+              "notifiedDeadlineSoon": false,
+              "creator": {
+                  "idUser": "cmgznv2yc0000fn4o2bb2mrbg",
+                  "username": "jFernandez",
+                  "firstName": "Joaco",
+                  "lastName": "Fernandez"
+              }
+          }
+      ]
+  }
+
+  /history/:id
+    {
+      "tasks": [
+          {
+              "idTask": "cmgzpdqrt000ffncg154a8iqj",
+              "name": "Lavar los platos",
+              "description": "Lavar los platos",
+              "completedByUser": true,
+              "completedByAdmin": true,
+              "familyId": "cmgzo0smf0004fngo9jodpsmw",
+              "creatorId": "cmgznv2yc0000fn4o2bb2mrbg",
+              "assignedId": "cmgznwiop0000fngog2lmncyh",
+              "idDifficulty": 2,
+              "createdAt": "2025-10-20T22:24:35.273Z",
+              "deadline": "2025-10-31T02:59:59.999Z",
+              "penalized": false,
+              "notifiedDeadlineSoon": false
+          }
+      ]
+  }
