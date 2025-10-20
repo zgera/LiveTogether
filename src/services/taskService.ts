@@ -238,6 +238,25 @@ export class TaskCompletionService extends TaskService {
 
         return taskCompleted;
     }
+
+    async rejectTaskCompletion(idTask: string, token: TokenData): Promise<Task> {
+        if (!idTask || !token) {
+            throw new Error("Todos los campos son obligatorios");
+        }
+        const taskAssigned = await this.getTask(idTask);
+
+        await this.authorizationService.assertUserIsAdmin(token, taskAssigned.familyId);
+
+        if (!taskAssigned.completedByUser) {
+            throw new Error("La tarea no ha sido completada por el usuario");
+        }
+
+        const taskReverted = await TaskRepository.markTaskAsUncompletedByUser(idTask);
+
+        
+
+        return taskReverted;
+    }
 }
 
 export class TaskAssignmentService extends TaskService {

@@ -4,6 +4,7 @@ enum NotificationType {
     TASK_EXPIRE_SOON
     TASK_EXPIRED
     TASK_UNASSIGNED
+    TASK_REJECTED
 }
 
 model Notification {

@@ -188,6 +188,19 @@ taskRouter.post("/complete/admin/:idTask", autenticarToken, async (req: Request,
     }
 });
 
+taskRouter.post("/revertcompletion/:idTask", autenticarToken, async (req: Request, res: Response) => {
+    const { idTask } = req.params;
+    const token = req.user!;
+
+    try {
+        const task = await taskCompletionService.rejectTaskCompletion(idTask, token);
+        res.status(200).send({ task });
+    } catch (error) {
+        const message = error instanceof Error ? error.message : 'Error inesperado al revertir la tarea';
+        res.status(401).send({ error: message });
+    }
+});
+
 // Asignar tarea a usuario (admin)
 taskRouter.post("/assign/:idTask/:idUser", autenticarToken, async (req: Request, res: Response) => {
     const { idTask, idUser } = req.params;

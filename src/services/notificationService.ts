@@ -10,7 +10,8 @@ enum NotificationTypesTitle {
     TASK_ASSIGNED = "Tarea asignada",
     TASK_EXPIRE_SOON = "Tarea próxima a vencer",
     TASK_EXPIRED = "Tarea vencida",
-    TASK_UNASSIGNED = "Tarea desasignada"
+    TASK_UNASSIGNED = "Tarea desasignada",
+    TASK_REJECTED = "Tarea rechazada. Completar de nuevo."
 }
 
 
@@ -61,6 +62,13 @@ class createUnassignedTaskStrategy implements createNotificationStrategy{
     }
 }
 
+class createRejectedTaskStrategy implements createNotificationStrategy{
+    async send(idFamily: string, idUser: string, type: NotificationType, title: string, idTask: string): Promise<void> {
+        notificationRepository.createNotification(idFamily, idUser, type, title, idTask)
+        webSocketService.emitPrivateMessage(idUser, {type: "Notification", idFamily: `${idFamily}`, title: title})
+    }
+}
+
 export class notificationService{
 
     private pickStrategy(type: NotificationType): createNotificationStrategy {
@@ -75,6 +83,8 @@ export class notificationService{
                 return new createExpiredTaskStrategy();
             case NotificationType.TASK_UNASSIGNED:
                 return new createUnassignedTaskStrategy();
+            case NotificationType.TASK_REJECTED:
+                return new createRejectedTaskStrategy();
             default:
                 throw new Error("Tipo de notificación no soportado");
         }

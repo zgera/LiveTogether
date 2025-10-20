@@ -312,6 +312,15 @@ export class TaskRepository {
         })
     }
 
+    static async markTaskAsUncompletedByUser(idTask: string): Promise<Task> {
+        return await db.task.update({
+            where: {idTask},
+            data: {
+                completedByUser: false
+            }
+        })
+    }
+
     static async assignTaskToUser(idTask: string, idUser: string): Promise<Task> {
         return await db.task.update({
             where: { idTask },
