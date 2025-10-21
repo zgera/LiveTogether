@@ -32,13 +32,13 @@ userRouter.post("/signin", async (req: Request, res: Response) => {
 
         const token = authenticationService.createToken(tokenData);
 
-        // En móvil: lo devolvés en JSON
-        //res.status(200).send({
-        //    user,
-        //    token
-        //});
+         
+        res.status(200).send({
+            user,
+            token
+        });
 
-        res
+/*         res
             .cookie('access_token', token, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
@@ -46,7 +46,7 @@ userRouter.post("/signin", async (req: Request, res: Response) => {
                 maxAge: 1000 * 60 * 60
             })
             .status(200)
-            .send({ user });
+            .send({ user }); */
     } catch (error) {
         const message = error instanceof Error ? error.message : 'Error inesperado al iniciar sesión';
         res.status(401).send({ error: message });

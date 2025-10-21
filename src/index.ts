@@ -11,8 +11,16 @@ import { TaskSchedulerService } from "./services/taskSchedulerService";
 
 
 import express from 'express';
+import cors from 'cors';
 
-const app = express()
+const app = express();
+
+// Enable CORS for all routes
+app.use(cors({
+    origin: 'http://localhost:3000', // Allow your React app's origin
+    credentials: true // If you plan to use cookies/sessions later
+}));
+
 
 const taskScheduler = new TaskSchedulerService()
 
@@ -28,6 +36,6 @@ const server = http.createServer(app)
 webSocketService.init(server)
 
 
-server.listen(3000, () => {
-  console.log(`App listening on http://localhost:3000`)
+server.listen(8080, () => {
+  console.log(`App listening on http://localhost:8080`)
 })

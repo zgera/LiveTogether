@@ -12,9 +12,9 @@ declare global {
 }
 
 export function autenticarToken(req: Request, res: Response, next: NextFunction) {
-    //const authHeader = req.headers["authorization"];
-    //const token = authHeader && authHeader.split(" ")[1];
-    const token = req.cookies.access_token
+    const authHeader = req.headers["authorization"];
+    const token_bearer = Array.isArray(authHeader) ? authHeader[0] : authHeader;
+    const token = token_bearer?.split(" ")[1];
 
     if (!token) {
         res.status(401).json({ mensaje: "No autenticado" });
