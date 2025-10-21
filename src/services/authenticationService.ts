@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken"
 import { TokenData } from "../types/auth"
+import { Family } from "@prisma/client"
 
 export class authenticationService{
     static createToken(tokenData: TokenData){

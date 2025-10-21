@@ -138,7 +138,13 @@ export class TaskRepository {
                         firstName: true,
                         lastName: true
                     }
-                }
+                },
+                difficulty: {
+                    select: {
+                        name: true,
+                        points: true,
+                    }
+                },
             }
         });
     }
