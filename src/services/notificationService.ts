@@ -11,7 +11,9 @@ enum NotificationTypesTitle {
     TASK_EXPIRE_SOON = "Tarea próxima a vencer",
     TASK_EXPIRED = "Tarea vencida",
     TASK_UNASSIGNED = "Tarea desasignada",
-    TASK_REJECTED = "Tarea rechazada. Completar de nuevo."
+    TASK_REJECTED = "Tarea rechazada. Completar de nuevo.",
+    TASK_TO_REVIEW = "Nueva tarea para revisar",
+    TASK_COMPLETED = "Tarea completada"
 }
 
 
@@ -50,8 +52,14 @@ class createExpireSoonTaskStrategy implements createNotificationStrategy{
 
 class createExpiredTaskStrategy implements createNotificationStrategy{
     async send(idFamily: string, idUser: string, type: NotificationType, title: string, idTask: string): Promise<void> {
+        const admin = await FamilyUserRepository.getFamilyAdmin(idFamily)
+        if (!admin) {
+            throw new Error("La familia no tiene un administrador");
+        }
         notificationRepository.createNotification(idFamily, idUser, type, title, idTask)
         webSocketService.emitPrivateMessage(idUser, {type: "Notification", idFamily: `${idFamily}`, title: title})
+        notificationRepository.createNotification(idFamily, admin.idUser, type, `Tarea ha expirado`, idTask)
+        webSocketService.emitPrivateMessage(admin.idUser, {type: "Notification", idFamily: `${idFamily}`, title: `Tarea ha expirado`})
     }
 }
 
@@ -63,6 +71,24 @@ class createUnassignedTaskStrategy implements createNotificationStrategy{
 }
 
 class createRejectedTaskStrategy implements createNotificationStrategy{
+    async send(idFamily: string, idUser: string, type: NotificationType, title: string, idTask: string): Promise<void> {
+        notificationRepository.createNotification(idFamily, idUser, type, title, idTask)
+        webSocketService.emitPrivateMessage(idUser, {type: "Notification", idFamily: `${idFamily}`, title: title})
+    }
+}
+
+class createTaskToReviewStrategy implements createNotificationStrategy{
+    async send(idFamily: string, idUser: string, type: NotificationType, title: string, idTask: string): Promise<void> {
+        const admin = await FamilyUserRepository.getFamilyAdmin(idFamily)
+        if (!admin) {
+            throw new Error("La familia no tiene un administrador");
+        }
+        notificationRepository.createNotification(idFamily, admin.idUser, type, title, idTask)
+        webSocketService.emitPrivateMessage(admin.idUser, {type: "Notification", idFamily: `${idFamily}`, title: title})
+    }
+}
+
+class createTaskCompletedStrategy implements createNotificationStrategy{
     async send(idFamily: string, idUser: string, type: NotificationType, title: string, idTask: string): Promise<void> {
         notificationRepository.createNotification(idFamily, idUser, type, title, idTask)
         webSocketService.emitPrivateMessage(idUser, {type: "Notification", idFamily: `${idFamily}`, title: title})
@@ -85,6 +111,10 @@ export class notificationService{
                 return new createUnassignedTaskStrategy();
             case NotificationType.TASK_REJECTED:
                 return new createRejectedTaskStrategy();
+            case NotificationType.TASK_TO_REVIEW:
+                return new createTaskToReviewStrategy();
+            case NotificationType.TASK_COMPLETED:
+                return new createTaskCompletedStrategy();
             default:
                 throw new Error("Tipo de notificación no soportado");
         }

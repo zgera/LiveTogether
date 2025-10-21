@@ -191,6 +191,8 @@ export class TaskCompletionService extends TaskService {
 
         const taskCompleted = await TaskRepository.markTaskAsCompletedByUser(idTask);
 
+        await this.NotificationService.createNotification(taskAssigned.familyId, token.userId, NotificationType.TASK_TO_REVIEW, taskCompleted.idTask);
+
 
         return taskCompleted;
     }
@@ -236,6 +238,8 @@ export class TaskCompletionService extends TaskService {
 
         await this.consumeTaskPoints(taskCompleted);
 
+        await this.NotificationService.createNotification(taskAssigned.familyId, taskAssigned.assignedId!, NotificationType.TASK_COMPLETED, taskCompleted.idTask);
+
         return taskCompleted;
     }
 
@@ -253,7 +257,7 @@ export class TaskCompletionService extends TaskService {
 
         const taskReverted = await TaskRepository.markTaskAsUncompletedByUser(idTask);
 
-        
+        await this.NotificationService.createNotification(taskAssigned.familyId, taskAssigned.assignedId!, NotificationType.TASK_REJECTED, taskReverted.idTask);
 
         return taskReverted;
     }
@@ -303,6 +307,8 @@ export class TaskAssignmentService extends TaskService {
         await this.authorizationService.assertUserIsAdmin(token, taskAssigned.familyId)
 
         const taskUnassigned = await TaskRepository.unassignTaskFromUser(idTask)
+
+        await this.NotificationService.createNotification(taskAssigned.familyId, taskAssigned.assignedId!, NotificationType.TASK_UNASSIGNED, taskUnassigned.idTask)
 
         return taskUnassigned
     }
