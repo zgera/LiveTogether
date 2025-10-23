@@ -1,6 +1,6 @@
 import { Task } from "@prisma/client";
 
-import { taskWithUserAssigned } from "../types/taskWithUserAssigned";
+import { taskWithCreatorAndUserAssigned, taskWithCreator } from "../types/taskTypes";
 
 import { db } from "../db/db";
 
@@ -99,7 +99,7 @@ export class TaskRepository {
         return await db.task.findUnique({ where: { idTask } })
     }
 
-    static async getTaskUnassigned(familyId: string): Promise<Task[]> {
+    static async getTaskUnassigned(familyId: string): Promise<taskWithCreator[]> {
         return await db.task.findMany({
             where: {
                 familyId,
@@ -116,13 +116,20 @@ export class TaskRepository {
                         firstName: true,
                         lastName: true
                     }
+                },
+                difficulty: {
+                    select: {
+                        idDifficulty: true,
+                        name: true,
+                        points: true
+                    }
                 }
             }
         });
     }
 
 
-    static async getTaskAssignedUncompletedByUser(familyId: string, userId: string): Promise<Task[]> {
+    static async getTaskAssignedUncompletedByUser(familyId: string, userId: string): Promise<taskWithCreator[]> {
         return await db.task.findMany({ 
             where: { 
                 familyId, 
@@ -141,15 +148,16 @@ export class TaskRepository {
                 },
                 difficulty: {
                     select: {
+                        idDifficulty: true,
                         name: true,
-                        points: true,
+                        points: true
                     }
-                },
+                }
             }
         });
     }
 
-    static async getTaskUnderReviewByUser(familyId: string, userId: string): Promise<Task[]> {
+    static async getTaskUnderReviewByUser(familyId: string, userId: string): Promise<taskWithCreator[]> {
         return await db.task.findMany({ 
             where: { 
                 familyId, 
@@ -165,12 +173,19 @@ export class TaskRepository {
                         firstName: true,
                         lastName: true
                     }
+                },
+                difficulty: {
+                    select: {
+                        idDifficulty: true,
+                        name: true,
+                        points: true
+                    }
                 }
             }
         });
     }
 
-    static async getTaskAssignedUncompleted(familyId: string): Promise<taskWithUserAssigned[]> {
+    static async getTaskAssignedUncompleted(familyId: string): Promise<taskWithCreatorAndUserAssigned[]> {
         const tasks = await db.task.findMany({ 
             where: { 
                 familyId,
@@ -194,13 +209,20 @@ export class TaskRepository {
                         firstName: true,
                         lastName: true
                     }
+                },
+                difficulty: {
+                    select: {
+                        idDifficulty: true,
+                        name: true,
+                        points: true
+                    }
                 }
             }
         });
         return tasks
     }
 
-    static async getTasksUnderReview(familyId: string): Promise<taskWithUserAssigned[]>  {
+    static async getTasksUnderReview(familyId: string): Promise<taskWithCreatorAndUserAssigned[]>  {
         const tasks = await db.task.findMany({ 
             where: { 
                 familyId, 
@@ -222,6 +244,13 @@ export class TaskRepository {
                         username: true,
                         firstName: true,
                         lastName: true
+                    }
+                },
+                difficulty: {
+                    select: {
+                        idDifficulty: true,
+                        name: true,
+                        points: true
                     }
                 }
             }

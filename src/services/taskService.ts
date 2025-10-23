@@ -7,13 +7,7 @@ import { TokenData } from "../types/auth";
 import { AuthorizationService } from "./authorizationService";
 import { FamilyService } from "./familyService";
 import { notificationService } from "./notificationService";
-import { taskWithUserAssigned } from "../types/taskWithUserAssigned";
-
-enum Difficulty {
-    facil = 1,
-    media = 2,
-    dificil = 3
-}
+import { taskWithCreatorAndUserAssigned, taskWithCreator } from "../types/taskTypes";
 
 
 export class TaskService {
@@ -54,7 +48,7 @@ export class TaskService {
         return task
     }
 
-    async getTasksUnassigned(familyId: string, token: TokenData): Promise<Task[]> {
+    async getTasksUnassigned(familyId: string, token: TokenData): Promise<taskWithCreator[]> {
         if (!familyId || !token) {
             throw new Error("Todos los campos son obligatorios");
         }
@@ -66,7 +60,7 @@ export class TaskService {
         return tasks;
     }
 
-    async getTasksAssignedUncompletedByUser(familyId: string, token: TokenData): Promise<Task[]> {
+    async getTasksAssignedUncompletedByUser(familyId: string, token: TokenData): Promise<taskWithCreator[]> {
         if (!familyId || !token) {
             throw new Error("Todos los campos son obligatorios");
         }
@@ -78,7 +72,7 @@ export class TaskService {
         return tasks;
     }
 
-    async getTasksUnderReviewByUser(familyId: string, token: TokenData): Promise<Task[]> {
+    async getTasksUnderReviewByUser(familyId: string, token: TokenData): Promise<taskWithCreator[]> {
         if (!familyId || !token) {
             throw new Error("Todos los campos son obligatorios");
         }
@@ -90,7 +84,7 @@ export class TaskService {
         return tasks;
     }
 
-    async getTasksAssignedUncompleted(familyId: string, token: TokenData): Promise<taskWithUserAssigned[]> {
+    async getTasksAssignedUncompleted(familyId: string, token: TokenData): Promise<taskWithCreatorAndUserAssigned[]> {
         if (!familyId || !token) {
             throw new Error("Todos los campos son obligatorios");
         }
@@ -102,7 +96,7 @@ export class TaskService {
         return tasks;
     }
 
-    async getTasksUnderReview(familyId: string, token: TokenData): Promise<taskWithUserAssigned[]> {
+    async getTasksUnderReview(familyId: string, token: TokenData): Promise<taskWithCreatorAndUserAssigned[]> {
         if (!familyId || !token) {
             throw new Error("Todos los campos son obligatorios");
         }
