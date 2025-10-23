@@ -245,16 +245,13 @@ export class TaskRepository {
         return await db.task.findMany({ where: { familyId, assignedId: null } });
     }
 
-    static async findExpiredUnpenalized(since: Date, now: Date) {
+    static async findExpiredUnpenalized(now: Date) {
         return db.task.findMany({
             where: {
                 assignedId: { not: null },          // solo tareas asignadas
                 completedByUser: false,             // el usuario NO la completó
                 penalized: false,                   // aún no penalizada
-                deadline: {
-                gte: since,
-                lte: now,
-                },
+                deadline: {lte: now}
             },
             include: {
                 difficulty: true,

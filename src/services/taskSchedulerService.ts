@@ -22,9 +22,8 @@ export class TaskSchedulerService {
 
   async processExpiredTasks() {
     const now = new Date();
-    const tenMinutesAgo = new Date(now.getTime() - 10 * 60 * 1000);
 
-    const expiredTasks = await TaskRepository.findExpiredUnpenalized(tenMinutesAgo, now);
+    const expiredTasks = await TaskRepository.findExpiredUnpenalized(now);
 
     for (const task of expiredTasks) {
         // Restar puntos al usuario asignado
