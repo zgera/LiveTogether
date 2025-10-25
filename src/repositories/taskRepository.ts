@@ -146,6 +146,14 @@ export class TaskRepository {
                         lastName: true
                     }
                 },
+                assignedTo: {
+                    select: {
+                        idUser: true,
+                        username: true,
+                        firstName: true,
+                        lastName: true
+                    }
+                },
                 difficulty: {
                     select: {
                         idDifficulty: true,
