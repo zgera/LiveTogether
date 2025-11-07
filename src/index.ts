@@ -16,7 +16,7 @@ import cors from 'cors';
 const app = express();
 
 app.use(cors({
-    origin: 'http://localhost:3000', // Permite las request desde esta direccion en especifico
+    origin: 'http://localhost:8081', // Permite las request desde esta direccion en especifico
     credentials: true // por si se usan cookies
 }));
 
