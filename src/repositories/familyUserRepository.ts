@@ -23,6 +23,13 @@ export class FamilyUserRepository {
             where: {
                 idUser,
                 idFamily
+            },
+            include: {
+                role: {
+                    select: {
+                        name: true
+                    }
+                }
             }
         })
     }
