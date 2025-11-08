@@ -81,4 +81,16 @@ invitationRouter.post("/reject/:id", autenticarToken,  async (req: Request, res:
     }
 })
 
+invitationRouter.get("/getUnseenCount", autenticarToken, async(req: Request, res: Response) => {
+    const token = req.user!
+
+    try {
+        const unseenCount = await invitationService.getUnseenInvitationsCount(token)
+        res.status(200).send({ unseenCount })
+    } catch (error) {
+        const message = error instanceof Error ? error.message : 'Error inesperado al obtener invitaciones';
+        res.status(401).send({ error: message });
+    }
+})
+
 //REJECT INVITATION
