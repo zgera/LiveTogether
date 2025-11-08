@@ -38,6 +38,6 @@ const server = http.createServer(app)
 webSocketService.init(server)
 
 
-server.listen(8080, () => {
-  console.log(`App listening on http://localhost:8080`)
+server.listen(3000, () => {
+  console.log(`App listening on http://localhost:3000`)
 })

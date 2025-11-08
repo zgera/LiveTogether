@@ -42,7 +42,7 @@ export const notificationRouter = Router()
  * }
  * }
  */
-notificationRouter.post("/get/:idFamily", autenticarToken, async(req: Request, res: Response) => {
+notificationRouter.get("/get/:idFamily", autenticarToken, async(req: Request, res: Response) => {
     const idFamily = req.params.idFamily
     const token = req.user!
 
@@ -72,7 +72,7 @@ notificationRouter.post("/get/:idFamily", autenticarToken, async(req: Request, r
  * }
  */
 
-notificationRouter.post("/getUnseenCount", autenticarToken, async(req: Request, res: Response) => {
+notificationRouter.get("/getUnseenCount", autenticarToken, async(req: Request, res: Response) => {
     const token = req.user!
 
     try {
