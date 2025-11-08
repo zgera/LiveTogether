@@ -17,10 +17,11 @@ export class notificationRepository {
         return notification
     }
 
-    static async getNotificationsByUserId(idUser: string): Promise<Notification[]>{
+    static async getNotificationsByFamilyID(idUser: string, idFamily: string): Promise<Notification[]>{
         const notifications = await db.notification.findMany({
             where: {
-                idUser
+                idUser,
+                idFamily
             },
             orderBy: {
                 createdAt: 'desc'
@@ -29,20 +30,22 @@ export class notificationRepository {
         return notifications
     }
 
-    static async getUnseenNotificationsCount(idUser: string): Promise<number>{
+    static async getUnseenNotificationsCountByFamilyID(idUser: string, idFamily: string): Promise<number>{
         const notifications = await db.notification.count({
             where: {
                 idUser,
+                idFamily,
                 seen: false
             }
         })
         return notifications
     }
 
-    static async markNotificationsAsSeen(idUser: string): Promise<void>{
+    static async markNotificationsAsSeenByFamilyID(idUser: string, idFamily: string): Promise<void>{
         await db.notification.updateMany({
             where: {
                 idUser,
+                idFamily,
                 seen: false
             },
             data: {

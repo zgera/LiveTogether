@@ -4,6 +4,7 @@ import { notificationRepository } from "../repositories/notificationRepository"
 import { FamilyUserRepository } from "../repositories/familyUserRepository";
 import { webSocketService } from "../ws/webSocketService"
 import { NotificationType } from "@prisma/client";
+import { unseenNotificationsPerFamily } from "../types/unseenNotificationsPerFamily";
 
 enum NotificationTypesTitle {
     TASK_CREATED = "Nueva tarea creada",
@@ -13,7 +14,7 @@ enum NotificationTypesTitle {
     TASK_UNASSIGNED = "Tarea desasignada",
     TASK_REJECTED = "Tarea rechazada. Completar de nuevo.",
     TASK_TO_REVIEW = "Nueva tarea para revisar",
-    TASK_COMPLETED = "Tarea completada"
+    TASK_COMPLETED = "Tarea revisada y verificada por el admin"
 }
 
 
@@ -127,26 +128,33 @@ export class notificationService{
         await strategy.send(idFamily, idUser, type, NotificationTypesTitle[type], idTask)
     }
 
-    async getNotifications(token: TokenData): Promise<Notification[]>{
+    async getNotifications(token: TokenData, idFamily: string): Promise<Notification[]>{
 
         if(!token){
             throw new Error("El token es obligatorio");
         }
 
-        const notifications = await notificationRepository.getNotificationsByUserId(token.userId);
+        const notifications = await notificationRepository.getNotificationsByFamilyID(token.userId, idFamily);
 
-        await notificationRepository.markNotificationsAsSeen(token.userId)
+        await notificationRepository.markNotificationsAsSeenByFamilyID(token.userId, idFamily)
 
         return notifications;
     }
 
-    async getUnseenNotificationsCount(token: TokenData): Promise<number>{
+    async getUnseenNotificationsCountPerFamily(token: TokenData): Promise<unseenNotificationsPerFamily>{
         if(!token){
             throw new Error("El token es obligatorio");
         }
 
-        const count = await notificationRepository.getUnseenNotificationsCount(token.userId);
+        const families = await FamilyUserRepository.getFamiliesByUser(token.userId)
         
-        return count;
+        const results = await Promise.all(
+            families.map(async (family) => {
+            let unseenNotifications = await notificationRepository.getUnseenNotificationsCountByFamilyID(token.userId, family.idFamily)
+            return {idFamily: family.idFamily, unseenNotifications}
+            })
+        )
+        
+        return results;
     }
 }   
