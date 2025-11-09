@@ -20,15 +20,22 @@ export class webSocketService{
             }
         })
 
+        console.log("WebSocket iniciado")
+
         this.io.use((socket, next) => {
+            console.log("Verificando Token...")
             const token = socket.handshake.auth.token
             if (!token) {
+                console.log("No hay token")
                 return next(new Error("Usuario no autenticado"))
             }
             try {
                 const payload = authenticationService.validateToken(token);
                 (socket as any).user = payload
+                console.log("TOKEN DE: " + payload.username);
+                next();
             } catch (err) {
+                console.log("Token invalido")
                 next(new Error("Token invalido"))
             }
         })

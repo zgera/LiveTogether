@@ -249,6 +249,10 @@ export class TaskCompletionService extends TaskService {
             throw new Error("La tarea no ha sido completada por el usuario");
         }
 
+        if (taskAssigned.completedByAdmin) {
+            throw new Error("La tarea ya ha sido completada por el admin");
+        }
+
         const taskReverted = await TaskRepository.markTaskAsUncompletedByUser(idTask);
 
         await this.NotificationService.createNotification(taskAssigned.familyId, taskAssigned.assignedId!, NotificationType.TASK_REJECTED, taskReverted.idTask);
