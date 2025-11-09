@@ -7,6 +7,7 @@ import { familyRouter } from "./routes/familyRouter";
 import { invitationRouter } from "./routes/invitationRouter";
 import { taskRouter } from "./routes/taskRouter";
 import { notificationRouter } from "./routes/notificationRouter";
+import { noteRouter } from "./routes/noteRouter";
 import { webSocketService } from "./ws/webSocketService";
 import { TaskSchedulerService } from "./services/taskSchedulerService";
 
@@ -33,6 +34,7 @@ app.use('/invitation', invitationRouter)
 app.use('/task', taskRouter)
 app.use('/task', taskRouter)
 app.use("/notification", notificationRouter)
+app.use("/note", noteRouter)
 
 const server = http.createServer(app)
 webSocketService.init(server)
