@@ -29,7 +29,7 @@ export class FamilyService {
         return family;
     }
 
-    async getFamily(idFamily: string): Promise<Family> {
+    async getFamily(idFamily: string): Promise<(Family & { members: number })> {
         if (!idFamily) {
             throw new Error("El id de la familia es obligatorio");
         }
@@ -44,7 +44,6 @@ export class FamilyService {
     }
 
     private async getFamiliesByIDs(familiesIDs: {idFamily: string, idRole: number}[]): Promise<FamilyWithRole[]> {
-        
         //REFACTORIZAR: HACER QUE EL ROL LO AGREGUE EN LA CONSULTA
         const families: FamilyWithRole[] = await Promise.all(
             familiesIDs.map(async (family) => {
