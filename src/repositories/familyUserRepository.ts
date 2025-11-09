@@ -73,7 +73,7 @@ export class FamilyUserRepository {
     }
 
     static async getFamiliesByUser(idUser: string): Promise<{idFamily: string, idRole: number}[]> {
-        return await db.familyUser.findMany({
+        const userFamilies = await db.familyUser.findMany({
             where: {
                 idUser
             },
@@ -81,7 +81,9 @@ export class FamilyUserRepository {
                 idFamily: true,
                 idRole: true
             }
-        })
+        });
+
+        return userFamilies;
     }
 
     static async getFamilyMembers(idFamily: string): Promise<FamilyUser[]> {
@@ -103,8 +105,18 @@ export class FamilyUserRepository {
                 orderBy: {
                     points: "desc"
                 },
-                include: {
-                    user: true
+                select: {
+                    idFamilyUser: true, 
+                    idUser: true,
+                    idRole: true,
+                    points: true, 
+                    user: {
+                        select: {
+                            username: true,
+                            firstName: true,
+                            lastName: true
+                        }
+                    }
                 }
             })
             return familyUser;

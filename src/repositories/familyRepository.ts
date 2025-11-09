@@ -25,7 +25,25 @@ export class FamilyRepository {
         return await db.family.delete({ where: { idFamily }})
     }
 
-    static async getFamily(idFamily: string): Promise<Family | null> {
-        return await db.family.findUnique({ where: { idFamily }});
+    static async getFamily(idFamily: string): Promise<(Family & { members: number }) | null> {
+        const family = await db.family.findUnique({ 
+            where: { idFamily },
+            include: {
+                _count: {
+                    select: {
+                        users: true 
+                    }
+                }
+            }
+        });
+        
+        if (!family) return null;
+        
+        const { _count, ...familyWithoutCount } = family;
+        
+        return {
+            ...familyWithoutCount,
+            members: family._count.users
+        };
     }
 }
