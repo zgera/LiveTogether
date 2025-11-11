@@ -16,9 +16,11 @@ import express from 'express';
 import cors from 'cors';
 
 const app = express();
+const port = 8080;
+const web_port = 3000
 
 app.use(cors({
-    origin: 'http://localhost:8081', // Permite las request desde esta direccion en especifico
+    origin: `http://localhost:${web_port}`, // permite las request desde esta direccion en especifico
     credentials: true // por si se usan cookies
 }));
 
@@ -32,14 +34,12 @@ app.use('/user', userRouter)
 app.use('/family', familyRouter)
 app.use('/invitation', invitationRouter)
 app.use('/task', taskRouter)
-app.use('/task', taskRouter)
 app.use("/notification", notificationRouter)
 app.use("/note", noteRouter)
 
 const server = http.createServer(app)
 webSocketService.init(server)
 
-
-server.listen(3000, () => {
-  console.log(`App listening on http://localhost:3000`)
+server.listen(port, () => {
+  console.log(`App listening on http://localhost:${port}`)
 })
