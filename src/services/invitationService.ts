@@ -48,7 +48,11 @@ export class InvitationService {
 
         const invitation = await InvitationRepository.createInvitation(idFamily, user.idUser, token.userId);
 
-        webSocketService.emitPrivateMessage(user.idUser, {type: "Invitation"})
+        webSocketService.emitPrivateMessage(user.idUser, 
+            {
+                type: "Invitation"
+            }
+        )
 
         return invitation;
     }

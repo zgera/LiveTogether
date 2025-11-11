@@ -47,7 +47,11 @@ class createAssignedTaskStrategy implements createNotificationStrategy{
 class createExpireSoonTaskStrategy implements createNotificationStrategy{
     async send(idFamily: string, idUser: string, type: NotificationType, title: string, idTask: string): Promise<void> {
         notificationRepository.createNotification(idFamily, idUser, type, title, idTask)
-        webSocketService.emitPrivateMessage(idUser, {type: "Notification", idFamily: `${idFamily}`, title: title})
+        webSocketService.emitPrivateMessage(idUser, 
+            {
+                type: "Notification", 
+                idFamily: `${idFamily}`, title: title}
+        )
     }
 }
 
