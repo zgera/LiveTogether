@@ -55,11 +55,11 @@ userRouter.post("/signin", async (req: Request, res: Response) => {
 
 userRouter.get("/signout", async (req: Request, res: Response) => {
     try {
-        const access_token = req.cookies?.access_token;
+        const token = req.cookies?.token;
 
-        if (!access_token) throw new Error('No hay ninguna sesión iniciada')
+        if (!token) throw new Error('No hay ninguna sesión iniciada')
 
-        res.clearCookie('access_token', { 
+        res.clearCookie('token', { 
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             sameSite: 'strict',
