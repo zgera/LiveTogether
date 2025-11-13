@@ -97,30 +97,52 @@ export class FamilyUserRepository {
         })  
     }
 
-        static async getFamilyRankings(idFamily: string): Promise<familyUserWithUser[]> {
-            const familyUser = await db.familyUser.findMany({
-                where: {
-                    idFamily
-                },
-                orderBy: {
-                    points: "desc"
-                },
-                select: {
-                    idFamilyUser: true, 
-                    idUser: true,
-                    idRole: true,
-                    points: true, 
-                    user: {
-                        select: {
-                            username: true,
-                            firstName: true,
-                            lastName: true
-                        }
+    static async getFamilyRankings(idFamily: string): Promise<(familyUserWithUser & { completedTasks: number })[]> {
+        const familyUser = await db.familyUser.findMany({
+            where: {
+                idFamily
+            },
+            orderBy: {
+                points: "desc"
+            },
+            select: {
+                idFamilyUser: true, 
+                idUser: true,
+                idRole: true,
+                points: true, 
+                user: {
+                    select: {
+                        username: true,
+                        firstName: true,
+                        lastName: true
                     }
                 }
+            }
+        })
+
+        // Obtener el conteo de tareas completadas para cada usuario
+        const familyUsersWithTasks = await Promise.all(
+            familyUser.map(async (member) => {
+                const completedTasks = await db.task.count({
+                    where: {
+                        familyId: idFamily,
+                        assignedId: member.idUser,
+                        OR: [
+                            { completedByAdmin: true },
+                            { penalized: true }
+                        ]
+                    }
+                });
+
+                return {
+                    ...member,
+                    completedTasks
+                };
             })
-            return familyUser;
-        }
+        );
+
+        return familyUsersWithTasks;
+    }
 
     static async getFamilyAdmin(idFamily: string): Promise<FamilyUser | null> {
         const admin = await db.familyUser.findFirst({

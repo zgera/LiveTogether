@@ -19,6 +19,16 @@ export class NoteRepository {
         return await db.note.findUnique({
             where: {
                 idNote
+            }, 
+            include: {
+                user: {
+                    select: {
+                        idUser: true,
+                        username: true,
+                        firstName: true,
+                        lastName: true
+                    }
+                }
             }
         })
     }

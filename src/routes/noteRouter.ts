@@ -46,6 +46,45 @@ noteRouter.post("/create", autenticarToken, async(req: Request, res: Response) =
     }
 })
 
+// GET /api/note/getOne/:idNote
+// ---------------------------------------------------------
+// 📘 Descripción:
+// Devuelve una única nota por su ID.
+// Solo los usuarios autenticados pueden acceder.
+//
+// 🧩 Parámetros de ruta:
+// :idNote — ID de la nota a obtener.
+//
+// ✅ Ejemplo de response (200 OK):
+// {
+//   "note": {
+//     "idNote": "clz9xr7p60002abc123xyz",
+//     "familyId": "clz9xqv5d0001abc123xyz",
+//     "creatorId": "clz9xn2k40001abc123xyz",
+//     "name": "Lista de compras",
+//     "desc": "Comprar leche, pan y frutas",
+//     "user": {
+//       "idUser": "clz9xn2k40001abc123xyz",
+//       "username": "valen123",
+//       "firstName": "Valentín",
+//       "lastName": "Gerakios"
+//     }
+//   }
+// }
+// ---------------------------------------------------------
+noteRouter.get("/getOnly/:idNote", autenticarToken, async (req: Request, res: Response) => {
+  const { idNote } = req.params
+
+  try {
+    const note = await NoteService.getNote(idNote)
+
+    res.status(200).send({ note })
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Error inesperado al obtener la nota"
+    res.status(401).send({ error: message })
+  }
+})
+
 
 // GET /api/note/get/:familyId
 // ---------------------------------------------------------
