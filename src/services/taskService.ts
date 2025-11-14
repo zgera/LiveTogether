@@ -344,6 +344,11 @@ export class TaskAssignmentService extends TaskService {
         const extraTasks: number = 1
         const doubleUsersPoints: number = user.points * 2
 
+        if (user.points === 0 && userMVP.points > 0) {
+            user.assigned = true;
+            return extraTasks;
+        }
+
         if (doubleUsersPoints < userMVP.points){
             user.assigned = true
             return extraTasks
