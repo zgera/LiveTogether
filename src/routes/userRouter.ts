@@ -45,7 +45,7 @@ userRouter.post("/signin", async (req: Request, res: Response) => {
                 maxAge: 60 * 60 * 1000, // 1 hora
             })
             .status(200)
-            .send({ user }); 
+            .send({ user, token }); 
 
     } catch (error) {
         const message = error instanceof Error ? error.message : 'Error inesperado al iniciar sesión';
