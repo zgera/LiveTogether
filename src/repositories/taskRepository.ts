@@ -87,59 +87,6 @@ export class TaskRepository {
         });
     }
 
-    // GET /api/task/getTask/:idTask
-    // 📘 Descripción:
-    // Obtiene una tarea específica por su ID. 
-    // Devuelve la información completa de la tarea, incluyendo:
-    // - Datos del creador (`creator`)
-    // - Datos del usuario asignado (`assignedTo`)
-    // - Dificultad asociada (`difficulty`)
-    //
-    // Requiere autenticación mediante token.
-    //
-    // 🧩 Parámetros de ruta:
-    // :idTask — ID único de la tarea a obtener.
-    //
-    // 🧩 Ejemplo de request:
-    // GET /api/task/getTask/clzb4x12f0000abc123xyz
-    //
-    // ✅ Ejemplo de response (200 OK):
-    // {
-    //   "task": {
-    //     "idTask": "clzb4x12f0000abc123xyz",
-    //     "name": "Lavar los platos",
-    //     "description": "Lavar todos los platos del almuerzo",
-    //     "completedByUser": false,
-    //     "completedByAdmin": false,
-    //     "familyId": "clzb3wq5d0001abc123xyz",
-    //     "creatorId": "clzb2vr9e0002abc123xyz",
-    //     "assignedId": "clzb2zj9f0003abc123xyz",
-    //     "idDifficulty": 2,
-    //     "createdAt": "2025-11-03T14:32:45.123Z",
-    //     "deadline": "2025-11-04T18:00:00.000Z",
-    //     "penalized": false,
-    //     "notifiedDeadlineSoon": false,
-    //
-    //     "creator": {
-    //       "idUser": "clzb2vr9e0002abc123xyz",
-    //       "username": "valen123",
-    //       "firstName": "Valentín",
-    //       "lastName": "Gerakios"
-    //     },
-    //     "assignedTo": {
-    //       "idUser": "clzb2zj9f0003abc123xyz",
-    //       "username": "martina",
-    //       "firstName": "Martina",
-    //       "lastName": "Pérez"
-    //     },
-    //     "difficulty": {
-    //       "idDifficulty": 2,
-    //       "name": "Media",
-    //       "points": 20
-    //     }
-    //   }
-    // }
-    //
     static async getTask(idTask: string): Promise<Task | null>{
         return await db.task.findUnique(
             { where: {
